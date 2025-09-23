@@ -1,89 +1,60 @@
-/* ===== Local fonts in /assets/fonts (filenames exact) ===== */
+/* ===== Local fonts in /assets/fonts (filenames with spaces are quoted) ===== */
 @font-face{
-  font-family:'SF Pixelate';
-  src:url('/assets/fonts/SF%20Pixelate.ttf') format('truetype');
+  font-family:"SF Pixelate";
+  src:url("/assets/fonts/SF Pixelate.ttf") format("truetype");
   font-weight:400; font-style:normal; font-display:swap;
 }
 @font-face{
-  font-family:'SF Pixelate';
-  src:url('/assets/fonts/SF%20Pixelate%20Bold.ttf') format('truetype');
+  font-family:"SF Pixelate";
+  src:url("/assets/fonts/SF Pixelate Bold.ttf") format("truetype");
   font-weight:700; font-style:normal; font-display:swap;
 }
 @font-face{
-  font-family:'SF Pixelate';
-  src:url('/assets/fonts/SF%20Pixelate%20Oblique.ttf') format('truetype');
+  font-family:"SF Pixelate";
+  src:url("/assets/fonts/SF Pixelate Oblique.ttf") format("truetype");
   font-weight:400; font-style:italic; font-display:swap;
 }
 @font-face{
-  font-family:'SF Pixelate';
-  src:url('/assets/fonts/SF%20Pixelate%20Bold%20Oblique.ttf') format('truetype');
-  font-weight:700; font-style:italic; font-display:swap;
-}
-/* Optional shaded variant if you want it instead of plain Bold: switch family name below */
-@font-face{
-  font-family:'SF Pixelate Shaded';
-  src:url('/assets/fonts/SF%20Pixelate%20Shaded.ttf') format('truetype');
-  font-weight:400; font-style:normal; font-display:swap;
-}
-@font-face{
-  font-family:'SF Pixelate Shaded';
-  src:url('/assets/fonts/SF%20Pixelate%20Shaded%20Bold.ttf') format('truetype');
-  font-weight:700; font-style:normal; font-display:swap;
-}
-@font-face{
-  font-family:'SF Pixelate Shaded';
-  src:url('/assets/fonts/SF%20Pixelate%20Shaded%20Oblique.ttf') format('truetype');
-  font-weight:400; font-style:italic; font-display:swap;
-}
-@font-face{
-  font-family:'SF Pixelate Shaded';
-  src:url('/assets/fonts/SF%20Pixelate%20Shaded%20Bold%20Oblique.ttf') format('truetype');
+  font-family:"SF Pixelate";
+  src:url("/assets/fonts/SF Pixelate Bold Oblique.ttf") format("truetype");
   font-weight:700; font-style:italic; font-display:swap;
 }
 
+/* Optional shaded family (unused by default) */
 @font-face{
-  font-family:'Futura';
-  src:url('/assets/fonts/Futura%20Regular.ttf') format('truetype');
+  font-family:"SF Pixelate Shaded";
+  src:url("/assets/fonts/SF Pixelate Shaded.ttf") format("truetype");
   font-weight:400; font-style:normal; font-display:swap;
 }
 @font-face{
-  font-family:'Futura';
-  src:url('/assets/fonts/Futura%20Bold.otf') format('opentype');
+  font-family:"SF Pixelate Shaded";
+  src:url("/assets/fonts/SF Pixelate Shaded Bold.ttf") format("truetype");
+  font-weight:700; font-style:normal; font-display:swap;
+}
+
+@font-face{
+  font-family:"Futura";
+  src:url("/assets/fonts/Futura Regular.ttf") format("truetype");
+  font-weight:400; font-style:normal; font-display:swap;
+}
+@font-face{
+  font-family:"Futura";
+  src:url("/assets/fonts/Futura Bold.otf") format("opentype");
   font-weight:700; font-style:normal; font-display:swap;
 }
 @font-face{
-  font-family:'Futura';
-  src:url('/assets/fonts/Futura%20Bold%20Condensed.otf') format('opentype');
-  font-weight:700; font-style:normal; font-stretch:condensed; font-display:swap;
-}
-@font-face{
-  font-family:'Futura';
-  src:url('/assets/fonts/Futura%20Bold%20Condensed%20Oblique.otf') format('opentype');
-  font-weight:700; font-style:italic; font-stretch:condensed; font-display:swap;
-}
-@font-face{
-  font-family:'Futura';
-  src:url('/assets/fonts/Futura%20Black.ttf') format('truetype');
+  font-family:"Futura";
+  src:url("/assets/fonts/Futura Black.ttf") format("truetype");
   font-weight:900; font-style:normal; font-display:swap;
 }
-@font-face{
-  font-family:'Futura';
-  src:url('/assets/fonts/Futura%20Condensed%20ExtraBold.ttf') format('truetype');
-  font-weight:800; font-style:normal; font-stretch:condensed; font-display:swap;
-}
-@font-face{
-  font-family:'Harmonia Sans W01 Semibold';
-  src:url('/assets/fonts/Harmonia%20Sans%20W01%20Semibold.ttf') format('truetype');
-  font-weight:600; font-style:normal; font-display:swap;
-}
 
-/* ===== Theme vars ===== */
+/* ===== Theme ===== */
 :root{--bg:#fff;--text:#111;--muted:#60666c;--accent:#ff004d;--accent2:#00a7c7;--border:#e5e7eb}
 *{box-sizing:border-box}
 html,body{height:100%}
 body{
   margin:0;background:var(--bg);color:var(--text);
-  font:400 16px/1.5 Futura,"Harmonia Sans W01 Semibold",ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  font:400 16px/1.5 "Futura","Harmonia Sans W01 Semibold",ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
 }
 a{color:inherit;text-decoration:none}
 a:hover{text-decoration:underline}
@@ -100,11 +71,9 @@ a:hover{text-decoration:underline}
 .nav a{padding:.25rem .6rem;border-radius:8px}
 .nav a:focus{outline:2px solid var(--accent);outline-offset:2px}
 
-/* Glitch text */
+/* Glitch text uses SF Pixelate */
 #glitch-target{
-  /* choose one family: plain Pixelate or the shaded variant */
-  font-family:'SF Pixelate', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  /* or: font-family:'SF Pixelate Shaded', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; */
+  font-family:"SF Pixelate", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-weight:700;
   font-size:clamp(36px,9vw,104px);
   line-height:.9;
