@@ -4,44 +4,28 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>About — VJ VIK MIL</title>
-  <link rel="stylesheet" href="styles.css?v=15">
+  <link rel="stylesheet" href="styles.css?v=17">
 
   <style>
-    /* Page-specific tweaks */
+    /* Page-specific tweaks for About */
     body {
       font-family: "SF Pixelate", monospace;
     }
-
-    .about-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 2rem;
-      align-items: start;
-      max-width: 1000px;
-      margin: 2rem auto;
-      padding: 1rem;
-    }
-    .about-grid img {
-      max-width: 100%;
-      height: auto;
-      display: block;
-    }
-
-    .bio {
+    .about-text {
       max-width: 800px;
       margin: 2rem auto;
+      padding: 0 1.2rem;
       font-size: 1rem;
       line-height: 1.6;
       text-align: left;
     }
-    .bio strong {
-      font-weight: 700;
+    .about-text p {
+      margin-bottom: 1.2rem;
     }
-    .bio .highlight {
-      color: #ff004d;
+    .about-text strong {
       font-weight: 700;
+      color: var(--accent);
     }
-
     .contact-block {
       margin: 2rem auto;
       text-align: center;
@@ -54,28 +38,22 @@
 </head>
 <body>
   <!-- Logo glitch -->
-  <header class="logo-header">
-  <a href="index.html" aria-label="Home">
-    <span id="glitch-target">VJ VIK MIL</span>
-  </a>
-</header>
-
+  <header class="wrap" style="padding:1rem 1rem 0;">
+    <p style="margin:0;text-align:center">
+      <a href="index.html" aria-label="Home">
+        <span id="glitch-target">VJ VIK MIL</span>
+      </a>
+    </p>
+  </header>
 
   <!-- About Content -->
   <main>
-    <div class="about-grid">
-      <img src="assets/images/ascii-portrait.png" alt="ASCII portrait of VJ VIK MIL">
-      <img src="assets/images/profile-photo.png" alt="Photo of VJ VIK MIL">
-    </div>
+    <div class="about-text">
+      <p><strong>Viktors Mileika</strong> is a London-based multimedia artist, video engineer, and VJ. An alumnus of the Guildhall School of Music & Drama, where he studied Video Design for Live Performance, he now also teaches video design and projection mapping there.</p>
 
-    <div class="bio">
-      <p><strong>VJ VIK MIL</strong> is an audiovisual artist & composer whose work explores the intersection of music, digital art, and technology. Active since 2008, his tracks have been played by renowned DJs worldwide.</p>
+      <p>He has created live visuals for <strong>Brockwell Live festivals</strong> (Mighty Hoopla, City Splash, Wide Awake, Cross The Tracks), <strong>Fuse London at Sonar Festival</strong> in Barcelona, the <strong>Sands Festival</strong> in Margate, and the <strong>Ibiza Orchestra Tour</strong>.</p>
 
-      <p>In 2022, he launched the <span class="highlight">VJ VIK MIL</span> project to push creative boundaries through collaborations with emerging digital artists in the Web3 space. His work elevates digital artworks into fully immersive experiences where sound and visuals become inseparable.</p>
-
-      <p>In July 2024, he presented his first AI-driven collaboration, which was featured in <span class="highlight">Fellowship’s Daily program</span>, a leading platform for contemporary digital art.</p>
-
-      <p>In 2025, he released <span class="highlight">data_transform</span>, a conceptual video series that reached a wide online audience. The project explores how technology distorts and abstracts human experience, reducing identity and presence into data streams and algorithmic patterns.</p>
+      <p>Always curious and exploring new possibilities, Viktors uses tools like <strong>Notch</strong> and <strong>TouchDesigner</strong> to build immersive, responsive visuals that bring energy and atmosphere to every stage.</p>
     </div>
 
     <div class="contact-block">

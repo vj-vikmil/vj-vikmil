@@ -195,3 +195,27 @@ a:hover {
   font-size: clamp(36px, 8vw, 96px);
   line-height: 1;
 }
+/* === ABOUT PAGE === */
+.about-text {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 0 1.2rem;   /* keeps side spacing */
+  font-size: 1rem;
+  line-height: 1.6;
+  text-align: left;
+}
+.about-text p {
+  margin-bottom: 1.2rem;
+}
+.about-text strong {
+  font-weight: 700;
+  color: var(--accent);
+}
+.contact-block {
+  margin: 2rem auto;
+  text-align: center;
+}
+.contact-block .email {
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
