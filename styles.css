@@ -1,74 +1,197 @@
 /* === Local fonts: use RELATIVE paths (project site safe) === */
-@font-face{font-family:"SF Pixelate";src:url("assets/fonts/SF Pixelate.ttf") format("truetype");font-weight:400;font-style:normal;font-display:swap}
-@font-face{font-family:"SF Pixelate";src:url("assets/fonts/SF Pixelate Bold.ttf") format("truetype");font-weight:700;font-style:normal;font-display:swap}
-@font-face{font-family:"SF Pixelate";src:url("assets/fonts/SF Pixelate Oblique.ttf") format("truetype");font-weight:400;font-style:italic;font-display:swap}
-@font-face{font-family:"SF Pixelate";src:url("assets/fonts/SF Pixelate Bold Oblique.ttf") format("truetype");font-weight:700;font-style:italic;font-display:swap}
-
-@font-face{font-family:"Futura";src:url("assets/fonts/Futura Regular.ttf") format("truetype");font-weight:400;font-style:normal;font-display:swap}
-@font-face{font-family:"Futura";src:url("assets/fonts/Futura Bold.otf") format("opentype");font-weight:700;font-style:normal;font-display:swap}
-@font-face{font-family:"Futura";src:url("assets/fonts/Futura Black.ttf") format("truetype");font-weight:900;font-style:normal;font-display:swap}
-
-:root{--bg:#fff;--text:#111;--muted:#60666c;--accent:#ff004d;--accent2:#00a7c7;--border:#e5e7eb}
-*{box-sizing:border-box}
-html,body{height:100%}
-body{
-  margin:0;background:var(--bg);color:var(--text);
-  font:400 16px/1.5 "Futura","Harmonia Sans W01 Semibold",ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+@font-face {
+  font-family: "SF Pixelate";
+  src: url("assets/fonts/SF Pixelate.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }
-a{color:inherit;text-decoration:none}
-a:hover{text-decoration:underline}
-
-.wrap{min-height:100dvh;display:grid;place-items:center;padding:5rem 1rem}
-.stack{display:grid;gap:.8rem;justify-items:center;text-align:center}
-
-
-/* Nav directly above glitch text */
-.nav{
-  display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;
-  padding:.55rem .8rem;border:1px solid var(--border);border-radius:999px;background:#fff
+@font-face {
+  font-family: "SF Pixelate";
+  src: url("assets/fonts/SF Pixelate Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
 }
-.nav a{
-  padding:.2rem .5rem;
-  border-radius:8px;
-  font-family:"Futura", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  font-weight:700;
-  font-size:clamp(14px, 1.6vw, 18px); /* smaller */
-  letter-spacing:.01em;
+@font-face {
+  font-family: "SF Pixelate";
+  src: url("assets/fonts/SF Pixelate Oblique.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
 }
-.nav a:focus{outline:2px solid var(--accent);outline-offset:2px}
-
-/* Glitch text uses SF Pixelate */
-#glitch-target{
-  font-family:"SF Pixelate", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-weight:700;
-  font-size:clamp(36px,9vw,104px);
-  line-height:.9;
-  letter-spacing:.5px;
-  text-shadow:1px 0 var(--accent), -1px 0 var(--accent2), 0 0 12px rgba(255,0,77,.15);
+@font-face {
+  font-family: "SF Pixelate";
+  src: url("assets/fonts/SF Pixelate Bold Oblique.ttf") format("truetype");
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
 }
 
-/* Social + email */
-.social{display:flex;gap:.4rem;align-items:center;margin-bottom:0} /* smaller gap */
-.pill{padding:.45rem .7rem}                         /* a bit tighter */
-.pill{border:1px solid var(--border);padding:.5rem .8rem;border-radius:999px;background:#fafafa}
-.pill:hover{text-decoration:none;transform:translateY(-1px)}
-.email{
-  margin:.15rem 0 0;
-  font-size:clamp(12px, 1.1vw, 14px);
-  line-height:1.4;
+@font-face {
+  font-family: "Futura";
+  src: url("assets/fonts/Futura Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }
-.email a{color:var(--muted);text-decoration:underline}
-
-.pill--ig{display:inline-flex;align-items:center;gap:.4rem}
-.pill--ig svg{display:block}
-.contact-block{
-  display:grid;
-  gap:.25rem;             /* small space between IG button + email */
-  justify-items:center;
+@font-face {
+  font-family: "Futura";
+  src: url("assets/fonts/Futura Bold.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Futura";
+  src: url("assets/fonts/Futura Black.ttf") format("truetype");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
 }
 
-.email{
-  margin:0;
-  font-size:clamp(12px, 1.1vw, 14px);
-  line-height:1.4;
+/* === Colors & globals === */
+:root {
+  --bg: #fff;
+  --text: #111;
+  --muted: #60666c;
+  --accent: #ff004d;
+  --accent2: #00a7c7;
+  --border: #e5e7eb;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 400 16px/1.5 "Futura", "Harmonia Sans W01 Semibold", ui-sans-serif,
+    system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+/* === Layout === */
+.wrap {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 5rem 1rem;
+}
+.stack {
+  display: grid;
+  gap: 0.8rem;
+  justify-items: center;
+  text-align: center;
+}
+
+/* === Nav directly above glitch text (homepage only) === */
+.nav {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: #fff;
+}
+.nav a {
+  padding: 0.2rem 0.5rem;
+  border-radius: 8px;
+  font-family: "Futura", system-ui, -apple-system, Segoe UI, Roboto, Arial,
+    sans-serif;
+  font-weight: 700;
+  font-size: clamp(14px, 1.6vw, 18px);
+  letter-spacing: 0.01em;
+}
+.nav a:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* === Glitch text uses SF Pixelate === */
+#glitch-target {
+  font-family: "SF Pixelate", ui-monospace, SFMono-Regular, Menlo, Consolas,
+    monospace;
+  font-weight: 700;
+  font-size: clamp(36px, 9vw, 104px);
+  line-height: 0.9;
+  letter-spacing: 0.5px;
+  text-shadow: 1px 0 var(--accent), -1px 0 var(--accent2),
+    0 0 12px rgba(255, 0, 77, 0.15);
+}
+
+/* === Social + email === */
+.social {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  margin-bottom: 0;
+}
+.pill {
+  border: 1px solid var(--border);
+  padding: 0.45rem 0.7rem;
+  border-radius: 999px;
+  background: #fafafa;
+}
+.pill:hover {
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+.pill--ig {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.pill--ig svg {
+  display: block;
+}
+
+.contact-block {
+  display: grid;
+  gap: 0.25rem; /* small space between IG button + email */
+  justify-items: center;
+}
+
+.email {
+  margin: 0;
+  font-size: clamp(12px, 1.1vw, 14px);
+  line-height: 1.4;
+}
+.email a {
+  color: var(--muted);
+  text-decoration: underline;
+}
+
+/* === About page: logo header only === */
+.logo-header {
+  margin: 0;
+  padding: 0.5rem 0;
+  text-align: center;
+}
+.logo-header a {
+  text-decoration: none;
+  color: inherit;
+}
+.logo-header #glitch-target {
+  font-family: "SF Pixelate", monospace;
+  font-weight: 700;
+  font-size: clamp(36px, 8vw, 96px);
+  line-height: 1;
 }
