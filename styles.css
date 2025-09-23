@@ -219,3 +219,11 @@ a:hover {
   font-size: 0.9rem;
   margin-top: 0.5rem;
 }
+/* About page header (glitch logo only) */
+.about-header {
+  padding: 1rem 0;
+  text-align: center;
+}
+.about-header p {
+  margin: 0;
+}
