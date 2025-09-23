@@ -1,54 +1,13 @@
-/* ===== Local fonts in /assets/fonts (filenames with spaces are quoted) ===== */
-@font-face{
-  font-family:"SF Pixelate";
-  src:url("/assets/fonts/SF Pixelate.ttf") format("truetype");
-  font-weight:400; font-style:normal; font-display:swap;
-}
-@font-face{
-  font-family:"SF Pixelate";
-  src:url("/assets/fonts/SF Pixelate Bold.ttf") format("truetype");
-  font-weight:700; font-style:normal; font-display:swap;
-}
-@font-face{
-  font-family:"SF Pixelate";
-  src:url("/assets/fonts/SF Pixelate Oblique.ttf") format("truetype");
-  font-weight:400; font-style:italic; font-display:swap;
-}
-@font-face{
-  font-family:"SF Pixelate";
-  src:url("/assets/fonts/SF Pixelate Bold Oblique.ttf") format("truetype");
-  font-weight:700; font-style:italic; font-display:swap;
-}
+/* === Local fonts: use RELATIVE paths (project site safe) === */
+@font-face{font-family:"SF Pixelate";src:url("assets/fonts/SF Pixelate.ttf") format("truetype");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"SF Pixelate";src:url("assets/fonts/SF Pixelate Bold.ttf") format("truetype");font-weight:700;font-style:normal;font-display:swap}
+@font-face{font-family:"SF Pixelate";src:url("assets/fonts/SF Pixelate Oblique.ttf") format("truetype");font-weight:400;font-style:italic;font-display:swap}
+@font-face{font-family:"SF Pixelate";src:url("assets/fonts/SF Pixelate Bold Oblique.ttf") format("truetype");font-weight:700;font-style:italic;font-display:swap}
 
-/* Optional shaded family (unused by default) */
-@font-face{
-  font-family:"SF Pixelate Shaded";
-  src:url("/assets/fonts/SF Pixelate Shaded.ttf") format("truetype");
-  font-weight:400; font-style:normal; font-display:swap;
-}
-@font-face{
-  font-family:"SF Pixelate Shaded";
-  src:url("/assets/fonts/SF Pixelate Shaded Bold.ttf") format("truetype");
-  font-weight:700; font-style:normal; font-display:swap;
-}
+@font-face{font-family:"Futura";src:url("assets/fonts/Futura Regular.ttf") format("truetype");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Futura";src:url("assets/fonts/Futura Bold.otf") format("opentype");font-weight:700;font-style:normal;font-display:swap}
+@font-face{font-family:"Futura";src:url("assets/fonts/Futura Black.ttf") format("truetype");font-weight:900;font-style:normal;font-display:swap}
 
-@font-face{
-  font-family:"Futura";
-  src:url("/assets/fonts/Futura Regular.ttf") format("truetype");
-  font-weight:400; font-style:normal; font-display:swap;
-}
-@font-face{
-  font-family:"Futura";
-  src:url("/assets/fonts/Futura Bold.otf") format("opentype");
-  font-weight:700; font-style:normal; font-display:swap;
-}
-@font-face{
-  font-family:"Futura";
-  src:url("/assets/fonts/Futura Black.ttf") format("truetype");
-  font-weight:900; font-style:normal; font-display:swap;
-}
-
-/* ===== Theme ===== */
 :root{--bg:#fff;--text:#111;--muted:#60666c;--accent:#ff004d;--accent2:#00a7c7;--border:#e5e7eb}
 *{box-sizing:border-box}
 html,body{height:100%}
@@ -59,7 +18,6 @@ body{
 a{color:inherit;text-decoration:none}
 a:hover{text-decoration:underline}
 
-/* Layout */
 .wrap{min-height:100dvh;display:grid;place-items:center;padding:5rem 1rem}
 .stack{display:grid;gap:1.2rem;justify-items:center;text-align:center}
 
