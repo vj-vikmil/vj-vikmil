@@ -227,3 +227,20 @@ a:hover {
 .about-header p {
   margin: 0;
 }
+/* === About page photos grid === */
+.about-photos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;  /* 2 equal columns */
+  gap: 1.5rem;
+  max-width: 900px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+.about-photos img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+  border: 2px solid var(--border);
+  border-radius: 6px;
+}
