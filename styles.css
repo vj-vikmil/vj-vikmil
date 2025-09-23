@@ -47,7 +47,10 @@ a:hover{text-decoration:underline}
 }
 
 /* Social + email */
-.social{display:flex;gap:.75rem;align-items:center}
+.social{display:flex;gap:.4rem;align-items:center} /* smaller gap */
+.pill{padding:.45rem .7rem}                         /* a bit tighter */
 .pill{border:1px solid var(--border);padding:.5rem .8rem;border-radius:999px;background:#fafafa}
 .pill:hover{text-decoration:none;transform:translateY(-1px)}
 .email a{color:var(--muted);text-decoration:underline}
+.pill--ig{display:inline-flex;align-items:center;gap:.4rem}
+.pill--ig svg{display:block}
