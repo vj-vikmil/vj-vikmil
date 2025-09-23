@@ -1,13 +1,113 @@
-<!doctype html><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>vikmil — VJ</title>
-<style>html,body{margin:0;background:#000;color:#fff;font:14px system-ui}</style>
-<h1>vikmil</h1>
-<p>VJ portfolio</p>
-<!-- YouTube -->
-<iframe width="560" height="315"
-  src="https://www.youtube.com/embed/VIDEO_ID?rel=0&mute=1&autoplay=1&loop=1&playlist=VIDEO_ID"
-  title="showreel" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>
-<!-- p5 + three (optional) -->
-<script src="https://cdn.jsdelivr.net/npm/p5@1.9.3/lib/p5.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Your Name — Designer & Developer</title>
+  <meta name="description" content="Portfolio of Your Name. Selected work, writing, and contact." />
+  <meta property="og:title" content="Your Name — Portfolio" />
+  <meta property="og:description" content="Selected work, writing, and contact." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://yourusername.github.io/" />
+  <meta property="og:image" content="https://yourusername.github.io/assets/avatar.jpg" />
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
+  <link rel="preload" href="styles.css" as="style" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <nav class="nav">
+      <a class="brand" href="#top" aria-label="Home">YN</a>
+      <button id="theme-toggle" class="theme-btn" aria-label="Toggle theme">🌙</button>
+      <ul class="nav-links">
+        <li><a href="#work">Work</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#writing">Writing</a></li>
+        <li><a href="#contact" class="btn">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section id="hero" class="hero section">
+      <div class="hero-inner">
+        <img class="avatar" src="assets/avatar.jpg" alt="Portrait of Your Name" />
+        <h1>Hi, I’m <span class="accent">Your Name</span>.</h1>
+        <p class="kicker">I design and build fast, accessible websites.</p>
+        <div class="cta">
+          <a href="#work" class="btn">See work</a>
+          <a href="mailto:you@example.com" class="btn btn-ghost">Email me</a>
+        </div>
+      </div>
+      <canvas id="bg" aria-hidden="true"></canvas>
+    </section>
+
+    <section id="work" class="section">
+      <h2>Selected work</h2>
+      <div class="grid">
+        <article class="card">
+          <a href="https://example.com/project-1" target="_blank" rel="noopener">
+            <div class="thumb" style="--bg:url('assets/thumb1.webp')"></div>
+            <h3>Project One</h3>
+            <p>Marketing site with Next.js, edge SSR, and WCAG AA.</p>
+            <ul class="meta"><li>2025</li><li>Web</li><li>Lead dev</li></ul>
+          </a>
+        </article>
+        <article class="card">
+          <a href="https://example.com/project-2" target="_blank" rel="noopener">
+            <div class="thumb" style="--bg:url('assets/thumb2.webp')"></div>
+            <h3>Project Two</h3>
+            <p>Design system and component library in vanilla CSS.</p>
+            <ul class="meta"><li>2024</li><li>Design</li><li>System</li></ul>
+          </a>
+        </article>
+        <article class="card">
+          <a href="https://example.com/project-3" target="_blank" rel="noopener">
+            <div class="thumb" style="--bg:url('assets/thumb3.webp')"></div>
+            <h3>Project Three</h3>
+            <p>Interactive data viz with Canvas and Web Workers.</p>
+            <ul class="meta"><li>2024</li><li>Viz</li><li>JS</li></ul>
+          </a>
+        </article>
+      </div>
+    </section>
+
+    <section id="about" class="section section-alt">
+      <h2>About</h2>
+      <p>I focus on clean UI, performance, and accessibility. I work with HTML, CSS, JS, and modern tooling. I like simple stacks and measurable outcomes.</p>
+      <ul class="facts">
+        <li>Location: City, Country</li>
+        <li>Stack: HTML, CSS, JS</li>
+        <li>Currently: Freelance</li>
+      </ul>
+    </section>
+
+    <section id="writing" class="section">
+      <h2>Writing</h2>
+      <ul class="posts">
+        <li><a href="#" aria-label="Read post: Ship small, ship fast">Ship small, ship fast</a> <span>— 2025-07-08</span></li>
+        <li><a href="#">Semantic HTML that pays off</a> <span>— 2025-05-21</span></li>
+        <li><a href="#">CSS that scales without frameworks</a> <span>— 2024-11-02</span></li>
+      </ul>
+    </section>
+
+    <section id="contact" class="section section-alt">
+      <h2>Contact</h2>
+      <p>Open to freelance and collaborations.</p>
+      <div class="contact-cards">
+        <a class="card-inline" href="mailto:you@example.com">you@example.com</a>
+        <a class="card-inline" href="https://github.com/yourusername" target="_blank" rel="noopener">GitHub</a>
+        <a class="card-inline" href="https://www.linkedin.com/in/yourhandle" target="_blank" rel="noopener">LinkedIn</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© <span id="year"></span> Your Name. Built with HTML, CSS, and JS. Hosted on GitHub Pages.</p>
+  </footer>
+
+  <script src="script.js" defer></script>
+</body>
+</html>
