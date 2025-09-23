@@ -4,78 +4,125 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>About — VJ VIK MIL</title>
-  <link rel="stylesheet" href="styles.css?v=14">
+  <link rel="stylesheet" href="styles.css?v=15">
+
   <style>
-    .about-grid{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:2rem;
-      align-items:start;
-      max-width:1000px;
-      margin:0 auto;
-      padding:2rem 1rem;
+    /* Page-specific tweaks */
+    body {
+      font-family: "SF Pixelate", monospace;
     }
-    .about-grid img{
-      max-width:100%;
-      height:auto;
-      display:block;
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      align-items: start;
+      max-width: 1000px;
+      margin: 2rem auto;
+      padding: 1rem;
     }
-    .bio{
-      max-width:700px;
-      margin:2rem auto;
-      font-size:1rem;
-      line-height:1.6;
-      text-align:left;
+    .about-grid img {
+      max-width: 100%;
+      height: auto;
+      display: block;
     }
-    .bio strong{font-weight:700}
-    .bio .highlight{color:#ff004d;font-weight:700}
-    .contact-block{margin-top:2rem}
+
+    .bio {
+      max-width: 800px;
+      margin: 2rem auto;
+      font-size: 1rem;
+      line-height: 1.6;
+      text-align: left;
+    }
+    .bio strong {
+      font-weight: 700;
+    }
+    .bio .highlight {
+      color: #ff004d;
+      font-weight: 700;
+    }
+
+    .contact-block {
+      margin: 2rem auto;
+      text-align: center;
+    }
+    .contact-block .email {
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+    }
   </style>
 </head>
 <body>
-  <main class="wrap">
-    <div class="stack">
+  <!-- Logo glitch -->
+  <header class="wrap" style="padding:2rem 1rem 0;">
+    <p style="margin:0;text-align:center">
+      <a href="index.html" aria-label="Home">
+        <span id="glitch-target">VJ VIK MIL</span>
+      </a>
+    </p>
+  </header>
 
-      <!-- Navigation -->
-      <nav class="nav" aria-label="Primary">
-        <a href="index.html">Home</a>
-        <a href="about.html">About</a>
-        <a href="portfolio.html">Portfolio</a>
-        <a href="exhibitions.html">Exhibitions</a>
-        <a href="music.html">Music</a>
-      </nav>
+  <!-- Navigation -->
+  <nav class="nav" aria-label="Primary">
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="portfolio.html">Portfolio</a>
+    <a href="exhibitions.html">Exhibitions</a>
+    <a href="music.html">Music</a>
+  </nav>
 
-      <!-- About grid -->
-      <div class="about-grid">
-        <img src="assets/images/ascii-portrait.png" alt="ASCII portrait of VJ VIK MIL">
-        <img src="assets/images/profile-photo.png" alt="Photo of VJ VIK MIL">
-      </div>
+  <!-- About Content -->
+  <main>
+    <div class="about-grid">
+      <img src="assets/images/ascii-portrait.png" alt="ASCII portrait of VJ VIK MIL">
+      <img src="assets/images/profile-photo.png" alt="Photo of VJ VIK MIL">
+    </div>
 
-      <!-- Bio -->
-      <div class="bio">
-        <p><strong>VJ VIK MIL</strong> is an audiovisual artist & composer whose work explores the intersection of music, digital art, and technology. Active since 2008, his tracks have been played by renowned DJs worldwide.</p>
+    <div class="bio">
+      <p><strong>VJ VIK MIL</strong> is an audiovisual artist & composer whose work explores the intersection of music, digital art, and technology. Active since 2008, his tracks have been played by renowned DJs worldwide.</p>
 
-        <p>In 2022, he launched the <span class="highlight">VJ VIK MIL</span> project to push creative boundaries through collaborations with emerging digital artists in the Web3 space. His work elevates digital artworks into fully immersive experiences where sound and visuals become inseparable.</p>
+      <p>In 2022, he launched the <span class="highlight">VJ VIK MIL</span> project to push creative boundaries through collaborations with emerging digital artists in the Web3 space. His work elevates digital artworks into fully immersive experiences where sound and visuals become inseparable.</p>
 
-        <p>In July 2024, he presented his first AI-driven collaboration, which was featured in <span class="highlight">Fellowship’s Daily program</span>, a leading platform for contemporary digital art.</p>
+      <p>In July 2024, he presented his first AI-driven collaboration, which was featured in <span class="highlight">Fellowship’s Daily program</span>, a leading platform for contemporary digital art.</p>
 
-        <p>In 2025, he released <span class="highlight">data_transform</span>, a conceptual video series that reached a wide online audience. The project explores how technology distorts and abstracts human experience, reducing identity and presence into data streams and algorithmic patterns.</p>
-      </div>
+      <p>In 2025, he released <span class="highlight">data_transform</span>, a conceptual video series that reached a wide online audience. The project explores how technology distorts and abstracts human experience, reducing identity and presence into data streams and algorithmic patterns.</p>
+    </div>
 
-      <!-- Contact -->
-      <div class="contact-block">
-        <a class="pill pill--ig" href="https://instagram.com/iamviktor" target="_blank" rel="noopener">
-          <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-            <rect x="2" y="2" width="20" height="20" rx="5"></rect>
-            <circle cx="12" cy="12" r="5" fill="#fff"></circle>
-            <circle cx="18" cy="6" r="1.6" fill="#fff"></circle>
-          </svg>
-          <span>Instagram</span>
-        </a>
-        <p class="email"><a href="mailto:viktors.mileika.cc@gmail.com">viktors.mileika.cc@gmail.com</a></p>
-      </div>
-
+    <div class="contact-block">
+      <a class="pill pill--ig" href="https://instagram.com/iamviktor" target="_blank" rel="noopener">
+        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <rect x="2" y="2" width="20" height="20" rx="5"></rect>
+          <circle cx="12" cy="12" r="5" fill="#fff"></circle>
+          <circle cx="18" cy="6" r="1.6" fill="#fff"></circle>
+        </svg>
+      </a>
+      <p class="email"><a href="mailto:viktors.mileika.cc@gmail.com">viktors.mileika.cc@gmail.com</a></p>
     </div>
   </main>
+
+  <!-- Glitch effect -->
+  <script>
+  (function(){
+    const original = "VJ VIK MIL";
+    const ascii = "@#$%&*+=-~:;|!?/[]{}<>\\^_`'\".,";
+    const el = document.getElementById("glitch-target");
+    if(!el) return;
+    let frame = 0;
+    setInterval(() => {
+      let out = "";
+      for (let i = 0; i < original.length; i++) {
+        if (Math.random() < 0.25) {
+          const ch = ascii[Math.floor(Math.random()*ascii.length)];
+          out += Math.random()<0.5 ? "<span style='color:#ff004d'>"+ch+"</span>" : ch;
+        } else {
+          out += original[i];
+        }
+      }
+      el.innerHTML = out;
+      if (frame % 12 === 0) el.textContent = original;
+      frame++;
+    }, 100);
+  })();
+  </script>
 </body>
 </html>
