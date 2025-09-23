@@ -61,3 +61,14 @@ a:hover{text-decoration:underline}
 
 .pill--ig{display:inline-flex;align-items:center;gap:.4rem}
 .pill--ig svg{display:block}
+.contact-block{
+  display:grid;
+  gap:.25rem;             /* small space between IG button + email */
+  justify-items:center;
+}
+
+.email{
+  margin:0;
+  font-size:clamp(12px, 1.1vw, 14px);
+  line-height:1.4;
+}
