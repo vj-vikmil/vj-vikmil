@@ -1,113 +1,112 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Your Name — Designer & Developer</title>
-  <meta name="description" content="Portfolio of Your Name. Selected work, writing, and contact." />
-  <meta property="og:title" content="Your Name — Portfolio" />
-  <meta property="og:description" content="Selected work, writing, and contact." />
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://yourusername.github.io/" />
-  <meta property="og:image" content="https://yourusername.github.io/assets/avatar.jpg" />
-  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml" />
-  <link rel="preload" href="styles.css" as="style" />
-  <link rel="stylesheet" href="styles.css" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Glitch Text</title>
+<style>
+  :root{
+    --bg:#0b0b0b; --text:#eaeaea; --accent1:#ff004d; --accent2:#00e5ff;
+  }
+  html,body{height:100%}
+  body{
+    margin:0; display:grid; place-items:center; background:var(--bg);
+    color:var(--text); font:600 28px/1.1 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  a{color:inherit; text-decoration:none}
+  .testo-lampeggiante{position:relative; display:inline-block}
+  /* core text */
+  #glitch-target{
+    position:relative; display:inline-block; padding:.2rem .35rem;
+    text-shadow:
+      0 0 1px var(--text),
+      1px 0 var(--accent1),
+      -1px 0 var(--accent2);
+    animation:flicker 2.2s infinite steps(60,end);
+  }
+  /* duplicate layers for RGB split + jitter */
+  #glitch-target::before,
+  #glitch-target::after{
+    content:attr(data-text);
+    position:absolute; inset:0; pointer-events:none;
+    mix-blend-mode:screen;
+  }
+  #glitch-target::before{
+    color:var(--accent1);
+    transform:translate(0,0);
+    clip-path:inset(0 0 0 0);
+    animation:glitch-r 1.7s infinite linear alternate-reverse;
+  }
+  #glitch-target::after{
+    color:var(--accent2);
+    transform:translate(0,0);
+    clip-path:inset(0 0 0 0);
+    animation:glitch-b 1.9s infinite linear alternate-reverse;
+  }
+  /* subtle scanline */
+  .scanlines{
+    position:absolute; inset:-40px; pointer-events:none; opacity:.12;
+    background:
+      repeating-linear-gradient(
+        to bottom,
+        transparent 0, transparent 2px,
+        rgba(255,255,255,.06) 3px
+      );
+    animation:scan 6s linear infinite;
+    filter:contrast(1.2) brightness(.9);
+  }
+
+  /* keyframes */
+  @keyframes flicker{
+    0%, 18%, 22%, 25%, 53%, 57%, 100% { opacity:1 }
+    19%, 23%, 55% { opacity:.85 }
+    24% { opacity:.6 }
+    56% { opacity:.35 }
+  }
+  @keyframes glitch-r{
+    0%   { transform:translate(0,0); clip-path:inset(0 0 82% 0) }
+    10%  { transform:translate(2px,-1px); clip-path:inset(10% 0 65% 0) }
+    20%  { transform:translate(-2px,1px); clip-path:inset(40% 0 40% 0) }
+    30%  { transform:translate(1px,0); clip-path:inset(70% 0 10% 0) }
+    40%  { transform:translate(0,0); clip-path:inset(20% 0 55% 0) }
+    50%  { transform:translate(3px,-2px); clip-path:inset(0 0 82% 0) }
+    60%  { transform:translate(-1px,1px); clip-path:inset(60% 0 25% 0) }
+    70%  { transform:translate(1px,-1px); clip-path:inset(35% 0 40% 0) }
+    80%  { transform:translate(0,0); clip-path:inset(15% 0 70% 0) }
+    90%  { transform:translate(-2px,0); clip-path:inset(50% 0 20% 0) }
+    100% { transform:translate(0,0); clip-path:inset(0 0 82% 0) }
+  }
+  @keyframes glitch-b{
+    0%   { transform:translate(0,0); clip-path:inset(82% 0 0 0) }
+    12%  { transform:translate(-2px,1px); clip-path:inset(65% 0 10% 0) }
+    22%  { transform:translate(2px,-1px); clip-path:inset(40% 0 40% 0) }
+    32%  { transform:translate(-1px,0); clip-path:inset(10% 0 70% 0) }
+    44%  { transform:translate(0,0); clip-path:inset(55% 0 20% 0) }
+    54%  { transform:translate(-3px,2px); clip-path:inset(82% 0 0 0) }
+    66%  { transform:translate(1px,-1px); clip-path:inset(25% 0 60% 0) }
+    76%  { transform:translate(-1px,1px); clip-path:inset(40% 0 35% 0) }
+    86%  { transform:translate(0,0); clip-path:inset(70% 0 15% 0) }
+    96%  { transform:translate(2px,0); clip-path:inset(20% 0 50% 0) }
+    100% { transform:translate(0,0); clip-path:inset(82% 0 0 0) }
+  }
+  @keyframes scan{
+    0% { background-position-y:0 }
+    100% { background-position-y:100% }
+  }
+
+  /* prefers-reduced-motion: turn off effects */
+  @media (prefers-reduced-motion: reduce){
+    #glitch-target, #glitch-target::before, #glitch-target::after{ animation:none }
+    .scanlines{ display:none }
+  }
+</style>
 </head>
 <body>
-  <a class="skip" href="#main">Skip to content</a>
-
-  <header class="site-header">
-    <nav class="nav">
-      <a class="brand" href="#top" aria-label="Home">YN</a>
-      <button id="theme-toggle" class="theme-btn" aria-label="Toggle theme">🌙</button>
-      <ul class="nav-links">
-        <li><a href="#work">Work</a></li>
-        <li><a href="#about">About</a></li>
-        <li><a href="#writing">Writing</a></li>
-        <li><a href="#contact" class="btn">Contact</a></li>
-      </ul>
-    </nav>
-  </header>
-
-  <main id="main">
-    <section id="hero" class="hero section">
-      <div class="hero-inner">
-        <img class="avatar" src="assets/avatar.jpg" alt="Portrait of Your Name" />
-        <h1>Hi, I’m <span class="accent">Your Name</span>.</h1>
-        <p class="kicker">I design and build fast, accessible websites.</p>
-        <div class="cta">
-          <a href="#work" class="btn">See work</a>
-          <a href="mailto:you@example.com" class="btn btn-ghost">Email me</a>
-        </div>
-      </div>
-      <canvas id="bg" aria-hidden="true"></canvas>
-    </section>
-
-    <section id="work" class="section">
-      <h2>Selected work</h2>
-      <div class="grid">
-        <article class="card">
-          <a href="https://example.com/project-1" target="_blank" rel="noopener">
-            <div class="thumb" style="--bg:url('assets/thumb1.webp')"></div>
-            <h3>Project One</h3>
-            <p>Marketing site with Next.js, edge SSR, and WCAG AA.</p>
-            <ul class="meta"><li>2025</li><li>Web</li><li>Lead dev</li></ul>
-          </a>
-        </article>
-        <article class="card">
-          <a href="https://example.com/project-2" target="_blank" rel="noopener">
-            <div class="thumb" style="--bg:url('assets/thumb2.webp')"></div>
-            <h3>Project Two</h3>
-            <p>Design system and component library in vanilla CSS.</p>
-            <ul class="meta"><li>2024</li><li>Design</li><li>System</li></ul>
-          </a>
-        </article>
-        <article class="card">
-          <a href="https://example.com/project-3" target="_blank" rel="noopener">
-            <div class="thumb" style="--bg:url('assets/thumb3.webp')"></div>
-            <h3>Project Three</h3>
-            <p>Interactive data viz with Canvas and Web Workers.</p>
-            <ul class="meta"><li>2024</li><li>Viz</li><li>JS</li></ul>
-          </a>
-        </article>
-      </div>
-    </section>
-
-    <section id="about" class="section section-alt">
-      <h2>About</h2>
-      <p>I focus on clean UI, performance, and accessibility. I work with HTML, CSS, JS, and modern tooling. I like simple stacks and measurable outcomes.</p>
-      <ul class="facts">
-        <li>Location: City, Country</li>
-        <li>Stack: HTML, CSS, JS</li>
-        <li>Currently: Freelance</li>
-      </ul>
-    </section>
-
-    <section id="writing" class="section">
-      <h2>Writing</h2>
-      <ul class="posts">
-        <li><a href="#" aria-label="Read post: Ship small, ship fast">Ship small, ship fast</a> <span>— 2025-07-08</span></li>
-        <li><a href="#">Semantic HTML that pays off</a> <span>— 2025-05-21</span></li>
-        <li><a href="#">CSS that scales without frameworks</a> <span>— 2024-11-02</span></li>
-      </ul>
-    </section>
-
-    <section id="contact" class="section section-alt">
-      <h2>Contact</h2>
-      <p>Open to freelance and collaborations.</p>
-      <div class="contact-cards">
-        <a class="card-inline" href="mailto:you@example.com">you@example.com</a>
-        <a class="card-inline" href="https://github.com/yourusername" target="_blank" rel="noopener">GitHub</a>
-        <a class="card-inline" href="https://www.linkedin.com/in/yourhandle" target="_blank" rel="noopener">LinkedIn</a>
-      </div>
-    </section>
-  </main>
-
-  <footer class="site-footer">
-    <p>© <span id="year"></span> Your Name. Built with HTML, CSS, and JS. Hosted on GitHub Pages.</p>
-  </footer>
-
-  <script src="script.js" defer></script>
+  <p>
+    <a class="testo-lampeggiante" href="/" aria-label="Home">
+      <span id="glitch-target" data-text="&gt;R[&amp; W:R]">&gt;R<span style="color:red;">[</span>&amp; W:R]</span>
+    </a>
+  </p>
+  <div class="scanlines" aria-hidden="true"></div>
 </body>
 </html>
