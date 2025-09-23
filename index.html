@@ -4,59 +4,48 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>VJ VIK MIL</title>
-<meta name="description" content="Italian audiovisual artist & composer pushing creative boundaries in digital art." />
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230b0b0b'/%3E%3Cpath d='M16 44L32 20l16 24' stroke='%23ff004d' stroke-width='6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<meta name="description" content="Italian audiovisual artist & composer pushing creative boundaries in digital art.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23ffffff'/%3E%3Cpath d='M16 44L32 20l16 24' stroke='%23ff004d' stroke-width='6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
 <style>
-  :root{--bg:#0b0b0b;--text:#eaeaea;--muted:#9aa0a6;--accent:#ff004d;--accent2:#00e5ff}
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0;min-height:100dvh;background:var(--bg);color:var(--text);
-    font:400 16px/1.5 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-    display:grid;grid-template-rows:auto 1fr auto
-  }
-  a{color:inherit;text-decoration:none}
-  a:hover{text-decoration:underline}
+  :root{--bg:#fff;--text:#111;--muted:#60666c;--accent:#ff004d;--accent2:#00a7c7;--border:#e5e7eb}
+  *{box-sizing:border-box} html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--text);font:400 16px/1.5 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+  a{color:inherit;text-decoration:none} a:hover{text-decoration:underline}
 
-  .nav{
-    display:flex;justify-content:center;gap:1.25rem;flex-wrap:wrap;
-    padding:1rem;border-bottom:1px solid #1f1f1f;background:rgba(11,11,11,.7);backdrop-filter:blur(6px);position:sticky;top:0;z-index:10
-  }
+  .wrap{min-height:100dvh;display:grid;place-items:center;padding:5rem 1rem}
+  .stack{display:grid;gap:1.2rem;justify-items:center;text-align:center}
+
+  /* nav sits directly above the glitch text */
+  .nav{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;padding:.55rem .8rem;border:1px solid var(--border);border-radius:999px;background:#fff}
   .nav a{padding:.25rem .6rem;border-radius:8px}
   .nav a:focus{outline:2px solid var(--accent);outline-offset:2px}
 
-  .wrap{display:grid;place-items:center;padding:6rem 1rem}
-  .stack{display:grid;gap:1rem;justify-items:center;text-align:center}
   #glitch-target{
-    font:800 clamp(32px,8vw,96px)/.9 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-    letter-spacing:.5px;text-shadow:1px 0 var(--accent),-1px 0 var(--accent2),0 0 8px rgba(255,0,77,.25)
+    font:800 clamp(36px,9vw,104px)/.9 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    letter-spacing:.5px;
+    text-shadow:1px 0 var(--accent),-1px 0 var(--accent2),0 0 12px rgba(255,0,77,.15)
   }
-  .social{display:flex;gap:.75rem;align-items:center}
-  .pill{border:1px solid #242424;padding:.5rem .8rem;border-radius:999px;background:#131313}
-  .pill:hover{text-decoration:none;transform:translateY(-1px)}
-  .email a{text-decoration:underline;color:var(--muted)}
-  footer{border-top:1px solid #1f1f1f;padding:1rem;text-align:center;color:var(--muted);font-size:.9rem}
 
-  @media (prefers-reduced-motion: reduce){
-    .no-motion{display:none}
-  }
+  .social{display:flex;gap:.75rem;align-items:center}
+  .pill{border:1px solid var(--border);padding:.5rem .8rem;border-radius:999px;background:#fafafa}
+  .pill:hover{text-decoration:none;transform:translateY(-1px)}
+  .email a{color:var(--muted);text-decoration:underline}
 </style>
 </head>
 <body>
-  <nav class="nav" aria-label="Primary">
-    <a href="about.html">About</a>
-    <a href="portfolio.html">Portfolio</a>
-    <a href="exhibitions.html">Exhibitions</a>
-    <a href="music.html">Music</a>
-  </nav>
-
   <main class="wrap">
     <div class="stack">
+      <nav class="nav" aria-label="Primary">
+        <a href="about.html">About</a>
+        <a href="portfolio.html">Portfolio</a>
+        <a href="exhibitions.html">Exhibitions</a>
+        <a href="music.html">Music</a>
+      </nav>
+
       <p style="margin:0">
-        <a href="/" aria-label="Home">
-          <span id="glitch-target">VJ VIK MIL</span>
-        </a>
+        <a href="/" aria-label="Home"><span id="glitch-target">VJ VIK MIL</span></a>
       </p>
+
       <div class="social">
         <a class="pill" href="https://instagram.com/iamviktor" target="_blank" rel="noopener">Instagram</a>
       </div>
@@ -64,13 +53,8 @@
     </div>
   </main>
 
-  <footer>
-    © <span id="year"></span> VJ VIK MIL
-  </footer>
-
 <script>
-document.getElementById('year').textContent = new Date().getFullYear();
-
+/* Glitch effect */
 (function(){
   const original = "VJ VIK MIL";
   const ascii = "@#$%&*+=-~:;|!?/[]{}<>\\^_`'\".,";
