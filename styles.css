@@ -1,55 +1,3 @@
-/* === Local fonts: use RELATIVE paths (project site safe) === */
-@font-face {
-  font-family: "SF Pixelate";
-  src: url("assets/fonts/SF Pixelate.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "SF Pixelate";
-  src: url("assets/fonts/SF Pixelate Bold.ttf") format("truetype");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "SF Pixelate";
-  src: url("assets/fonts/SF Pixelate Oblique.ttf") format("truetype");
-  font-weight: 400;
-  font-style: italic;
-  font-display: swap;
-}
-@font-face {
-  font-family: "SF Pixelate";
-  src: url("assets/fonts/SF Pixelate Bold Oblique.ttf") format("truetype");
-  font-weight: 700;
-  font-style: italic;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Futura";
-  src: url("assets/fonts/Futura Regular.ttf") format("truetype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Futura";
-  src: url("assets/fonts/Futura Bold.otf") format("opentype");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Futura";
-  src: url("assets/fonts/Futura Black.ttf") format("truetype");
-  font-weight: 900;
-  font-style: normal;
-  font-display: swap;
-}
-
 /* === Colors & globals === */
 :root {
   --bg: #fff;
@@ -73,8 +21,8 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font: 400 16px/1.5 "Futura", "Harmonia Sans W01 Semibold", ui-sans-serif,
-    system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  font: 400 16px/1.5 "Space Grotesk", system-ui, -apple-system, "Segoe UI",
+    Roboto, Arial, sans-serif;
 }
 
 a {
@@ -113,8 +61,8 @@ a:hover {
 .nav a {
   padding: 0.2rem 0.5rem;
   border-radius: 8px;
-  font-family: "Futura", system-ui, -apple-system, Segoe UI, Roboto, Arial,
-    sans-serif;
+  font-family: "Space Grotesk", system-ui, -apple-system, "Segoe UI", Roboto,
+    Arial, sans-serif;
   font-weight: 700;
   font-size: clamp(14px, 1.6vw, 18px);
   letter-spacing: 0.01em;
@@ -126,7 +74,7 @@ a:hover {
 
 /* === Glitch text uses SF Pixelate === */
 #glitch-target {
-  font-family: "SF Pixelate", ui-monospace, SFMono-Regular, Menlo, Consolas,
+  font-family: "Press Start 2P", ui-monospace, SFMono-Regular, Menlo, Consolas,
     monospace;
   font-weight: 700;
   font-size: clamp(36px, 9vw, 104px);
@@ -190,7 +138,7 @@ a:hover {
   color: inherit;
 }
 .logo-header #glitch-target {
-  font-family: "SF Pixelate", monospace;
+  font-family: "Press Start 2P", monospace;
   font-weight: 700;
   font-size: clamp(36px, 8vw, 96px);
   line-height: 1;
