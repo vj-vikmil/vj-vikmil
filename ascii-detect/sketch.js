@@ -27,11 +27,9 @@ let chkBoxes, clrBorder, rngBorder, chkLabels, lblTpl, lblSize, lblDec, clrLabel
 
 let chkPoseBox, clrPoseBox, rngPoseBox;
 let chkPoseSkel, clrSkel, rngSkelW;
-let clrHeadBox, rngHeadBox;
-let clrHeadCircle, rngHeadCircleW;
-let clrPts, rngPtSize;
 
 let chkLines, clrLine, rngLineW, rngCurv, chkLineStraight;
+let rngLinePairs;
 
 let chkVideoColors, selPalette, clrA, clrB, wrapA, wrapB, clrBG;
 
@@ -404,7 +402,7 @@ function draw(){
       }
     }
 
-    // Pose: body box + skeleton (shared controls)
+    // Pose: body box + skeleton only
     if (mode==='features' && poseReady){
       if (chkPoseBox?.checked()){
         const bc = clrPoseBox?.value() || "#00ffaa";
@@ -413,23 +411,13 @@ function draw(){
         for (const b of boxes) rect(b.x,b.y,b.w,b.h,4);
       }
 
-      const skelOn = chkPoseSkel?.checked();
-      if (skelOn){
+      if (chkPoseSkel?.checked()){
         const skc = clrSkel?.value() || "#88ccff";
         const skw = rngSkelW?.value() || 3;
-        const headCol = clrHeadBox?.value() || "#ff66aa";
-        const headW = rngHeadBox?.value() || 3;
-        const circCol = clrHeadCircle?.value() || "#00ffcc";
-        const circW = rngHeadCircleW?.value() || 3;
-        const ptCol = clrPts?.value() || "#ffd166";
-        const ptSize = rngPtSize?.value() || 4;
+        stroke(skc); strokeWeight(skw); noFill();
 
-        noFill();
         for (const pr of poses){
           const kps = pr?.pose?.keypoints || [];
-
-          // skeleton lines
-          stroke(skc); strokeWeight(skw);
           if (Array.isArray(pr.skeleton) && pr.skeleton.length){
             for (const seg of pr.skeleton){
               const a=seg[0]?.position, b=seg[1]?.position;
@@ -454,27 +442,6 @@ function draw(){
               line(A.x/vw*cw, A.y/vh*ch, B.x/vw*cw, B.y/vh*ch);
             }
           }
-
-          // head boxes
-          stroke(headCol); strokeWeight(headW);
-          for (const hb of headBoxes){
-            rect(hb.x, hb.y, hb.w, hb.h, 4);
-          }
-
-          // head circles
-          stroke(circCol); strokeWeight(circW);
-          for (const hc of headCircles){
-            circle(hc.cx, hc.cy, hc.r*2);
-          }
-
-          // keypoints
-          noStroke(); fill(ptCol);
-          for (const kp of kps){
-            const s=kp.score??kp.confidence??0; if(s<rngConf.value()) continue;
-            const x = (kp.position?.x||0)/vw*cw;
-            const y = (kp.position?.y||0)/vh*ch;
-            circle(x,y,ptSize);
-          }
         }
       }
     }
@@ -487,9 +454,13 @@ function draw(){
       const curv = chkLineStraight?.checked()
         ? 0
         : (Number.isFinite(sliderCurv) ? sliderCurv : 0.6);
+      const maxPairs = Math.max(1, Math.round(rngLinePairs?.value() || 9999));
       stroke(red(lc),green(lc),blue(lc)); strokeWeight(lw); noFill();
+      let drawn = 0;
       for (let i=0;i<boxes.length;i++){
+        if (drawn >= maxPairs) break;
         for (let j=i+1;j<boxes.length;j++){
+          if (drawn >= maxPairs) break;
           const a=center(boxes[i]), b=center(boxes[j]);
           if (Math.abs(curv) < 1e-6){
             line(a.x,a.y,b.x,b.y);
@@ -504,6 +475,7 @@ function draw(){
             drawingContext.quadraticCurveTo(mx+nx*off,my+ny*off,b.x,b.y);
             drawingContext.stroke();
           }
+          drawn++;
         }
       }
     }
@@ -623,18 +595,9 @@ function buildUI(){
   chkPoseSkel=createCheckbox("Skeleton", true);
   clrSkel=createColorPicker("#88ccff");
   rngSkelW=createSlider(1,12,3,1);
-  clrHeadBox=createColorPicker("#ff66aa");
-  rngHeadBox=createSlider(1,12,3,1);
-  clrHeadCircle=createColorPicker("#00ffcc");
-  rngHeadCircleW=createSlider(1,12,3,1);
-  clrPts=createColorPicker("#ffd166");
-  rngPtSize=createSlider(2,12,4,1);
   section("Pose features", [
     chkPoseBox, label("BoxCol"), clrPoseBox, label("px"), rngPoseBox,
-    chkPoseSkel, label("BodyCol"), clrSkel, label("px"), rngSkelW,
-    label("HeadCol"), clrHeadBox, label("px"), rngHeadBox,
-    label("CircCol"), clrHeadCircle, label("px"), rngHeadCircleW,
-    label("PtCol"), clrPts, label("size"), rngPtSize
+    chkPoseSkel, label("BoneCol"), clrSkel, label("px"), rngSkelW
   ]);
 
   // ASCII basics
@@ -709,7 +672,14 @@ function buildUI(){
   clrLine=createColorPicker("#8cf");
   rngLineW=createSlider(1,8,3,1);
   rngCurv=createSlider(0,1.5,0.6,0.01);
-  section("Lines between detections", [ chkLines, chkLineStraight, label("Curv"), rngCurv, label("Color"), clrLine, label("px"), rngLineW ]);
+  rngLinePairs=createSlider(1,30,10,1);
+  section("Lines between detections", [
+    chkLines, chkLineStraight,
+    label("Pairs"), rngLinePairs,
+    label("Curv"), rngCurv,
+    label("Color"), clrLine,
+    label("px"), rngLineW
+  ]);
 
   // PNG recorder
   bRecStart=btn("Start PNG 25fps", startPng);
