@@ -39,6 +39,10 @@ let bRecStart, bRecStop, recStatus, recLink;
 
 let selStyle, inpCustom, chkAutoRows, rngCols, rngFont, rngCellH;
 
+// Luma detection controls
+let chkLumaEnable, chkLumaFeed, chkLumaBoxes;
+let rngLumaThr, rngLumaGrid, rngLumaMinCells, rngLumaStroke, clrLumaBox;
+
 // Detections
 let coco=null, cocoLoopId=null, cocoBusy=false, objects=[];
 let poseNet=null, poses=[], poseReady=false;
@@ -229,6 +233,12 @@ function draw(){
     let boxesVid = [];
     let headBoxesVid = [];
     let headCirclesVid = []; // NEW head circles
+    const lumaActive = (mode==='luma') || !!chkLumaEnable?.checked();
+    let lumaBoxesVid = [];
+    if (lumaActive){
+      lumaBoxesVid = getLumaBoxes(vw, vh);
+    }
+
     if (mode==='objects' && coco){
       const src = Array.isArray(objects)?objects:[];
       boxesVid = src
@@ -254,7 +264,12 @@ function draw(){
       headBoxesVid = getHeadBoxes(vw, vh, conf);
       headCirclesVid = getHeadCircles(vw, vh, conf);
     } else if (mode==='luma'){
-      boxesVid = getLumaBoxes(vw, vh);
+      boxesVid = lumaBoxesVid;
+    }
+
+    const lumaFeed = (mode==='luma') || (chkLumaEnable?.checked() && chkLumaFeed?.checked());
+    if (lumaFeed && mode!=='luma' && lumaBoxesVid.length){
+      boxesVid = boxesVid.concat(lumaBoxesVid);
     }
 
     // If ASCII only inside detections, mask those regions first
@@ -333,19 +348,21 @@ function draw(){
 
     // Canvas-space boxes / circles
     const boxes = boxesVid.map(b=>({ x:(b.x/vw)*cw, y:(b.y/vh)*ch, w:(b.w/vw)*cw, h:(b.h/vh)*ch, label:b.label, score:b.score }));
+    const lumaBoxesCanvas = lumaBoxesVid.map(b=>({ x:(b.x/vw)*cw, y:(b.y/vh)*ch, w:(b.w/vw)*cw, h:(b.h/vh)*ch }));
+    const objectBoxesCanvas = boxes.filter(b=>b.label!=='luma');
     const headBoxes = headBoxesVid.map(b=>({ x:(b.x/vw)*cw, y:(b.y/vh)*ch, w:(b.w/vw)*cw, h:(b.h/vh)*ch }));
     const headCircles = headCirclesVid.map(c=>({ cx:(c.cx/vw)*cw, cy:(c.cy/vh)*ch, r:(c.r/vw)*cw })); // scale by width
 
     // Objects & luma: boxes + labels
-    if (mode==='objects' || mode==='luma'){
+    if (mode==='objects'){
       if (chkBoxes?.checked()){
         const bc = clrBorder?.value() || "#00ff88";
         const bw = rngBorder?.value() || 3;
         noFill(); stroke(bc); strokeWeight(bw);
-        for (const b of boxes) rect(b.x,b.y,b.w,b.h,4);
+        for (const b of objectBoxesCanvas) rect(b.x,b.y,b.w,b.h,4);
       }
       // Only label real object detections; luma boxes are usually too noisy for labels
-      if (mode==='objects' && chkLabels?.checked()){
+      if (chkLabels?.checked()){
         const tc=color(clrLabel?.value() || "#ffffff");
         const fs=lblSize?.value() || 14;
         const dec=lblDec?.value() || 0;
@@ -360,6 +377,17 @@ function draw(){
           if (ty < 2) ty = b.y + 2;
           text(txt, tx, ty);
         }
+      }
+    }
+
+    // Luma overlay boxes
+    const drawLumaBoxes = lumaBoxesCanvas.length && (mode==='luma' || (chkLumaEnable?.checked() && chkLumaBoxes?.checked()));
+    if (drawLumaBoxes){
+      const lc = clrLumaBox?.value() || "#00ffd5";
+      const lw = rngLumaStroke?.value() || 2;
+      noFill(); stroke(lc); strokeWeight(lw);
+      for (const b of lumaBoxesCanvas){
+        rect(b.x, b.y, b.w, b.h, 4);
       }
     }
 
@@ -543,7 +571,27 @@ function buildUI(){
   selDet.changed(()=>{
     if (selDet.value()==="objects") maybeStartCoco();
     else stopCocoLoop();
+    if (selDet.value()==="luma" && chkLumaEnable && !chkLumaEnable.checked()){
+      chkLumaEnable.checked(true);
+    }
   });
+
+  // Luma detection controls
+  chkLumaEnable=createCheckbox("Enable", false);
+  chkLumaFeed=createCheckbox("Feed ASCII/detect", true);
+  chkLumaBoxes=createCheckbox("Show boxes", true);
+  clrLumaBox=createColorPicker("#00ffd5");
+  rngLumaStroke=createSlider(1,8,2,1);
+  rngLumaThr=createSlider(0,255,170,1);
+  rngLumaGrid=createSlider(10,120,40,1);
+  rngLumaMinCells=createSlider(1,20,3,1);
+  section("Luma detection", [
+    chkLumaEnable, chkLumaFeed, chkLumaBoxes,
+    label("Color"), clrLumaBox, label("px"), rngLumaStroke,
+    label("Thr"), rngLumaThr,
+    label("Grid"), rngLumaGrid,
+    label("Min cells"), rngLumaMinCells
+  ]);
 
   // Objects
   chkBoxes=createCheckbox("Boxes", true);
@@ -952,15 +1000,13 @@ function getLumaBoxes(vw, vh){
   const out = [];
   if (!videoHasData()) return out;
 
-  // Downsample grid for luma detection (coarse to keep it cheap)
-  const Gx = 40, Gy = 30;
-  const cellW = vw / Gx, cellH = vh / Gy;
+  const thr = Math.max(0, Math.min(255, Number(rngLumaThr?.value() ?? 170)));
+  const gridVal = Math.max(6, Math.round(Number(rngLumaGrid?.value() ?? 40)));
+  const Gx = gridVal;
+  const Gy = Math.max(6, Math.round(gridVal * (vh/Math.max(1,vw))));
+  const cellW = vw / Gx;
+  const cellH = vh / Gy;
   const mask = new Array(Gx*Gy).fill(0);
-
-  // Use detection confidence slider as brightness threshold:
-  // lower confidence => lower threshold => more bright areas detected.
-  const confVal = (rngConf && typeof rngConf.value==="function") ? rngConf.value() : 0.5;
-  const thr = Math.max(0, Math.min(255, Math.round(confVal * 255)));
 
   vid.loadPixels();
   const pix = vid.pixels;
@@ -978,10 +1024,8 @@ function getLumaBoxes(vw, vh){
     }
   }
 
-  // Simple connected components on grid (4-neighbour)
   const seen = new Array(Gx*Gy).fill(0);
-  const minCells = 3; // ignore tiny noise blobs
-
+  const minCells = Math.max(1, Math.round(Number(rngLumaMinCells?.value() ?? 3)));
   const inBounds = (x,y)=> x>=0 && x<Gx && y>=0 && y<Gy;
 
   for (let gy=0; gy<Gy; gy++){
@@ -1012,7 +1056,6 @@ function getLumaBoxes(vw, vh){
 
       if (size < minCells) continue;
 
-      // Convert grid bounds to video-space box
       const x = minX * cellW;
       const y = minY * cellH;
       const w = Math.max(1, (maxX-minX+1) * cellW);
