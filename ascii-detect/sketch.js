@@ -336,15 +336,16 @@ function draw(){
     const headBoxes = headBoxesVid.map(b=>({ x:(b.x/vw)*cw, y:(b.y/vh)*ch, w:(b.w/vw)*cw, h:(b.h/vh)*ch }));
     const headCircles = headCirclesVid.map(c=>({ cx:(c.cx/vw)*cw, cy:(c.cy/vh)*ch, r:(c.r/vw)*cw })); // scale by width
 
-    // Objects: boxes + labels
-    if (mode==='objects'){
+    // Objects & luma: boxes + labels
+    if (mode==='objects' || mode==='luma'){
       if (chkBoxes?.checked()){
         const bc = clrBorder?.value() || "#00ff88";
         const bw = rngBorder?.value() || 3;
         noFill(); stroke(bc); strokeWeight(bw);
         for (const b of boxes) rect(b.x,b.y,b.w,b.h,4);
       }
-      if (chkLabels?.checked()){
+      // Only label real object detections; luma boxes are usually too noisy for labels
+      if (mode==='objects' && chkLabels?.checked()){
         const tc=color(clrLabel?.value() || "#ffffff");
         const fs=lblSize?.value() || 14;
         const dec=lblDec?.value() || 0;
