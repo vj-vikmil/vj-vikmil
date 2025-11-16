@@ -1,0 +1,131 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>ASCII + Objects + Pose (Stable, Responsive, 25fps PNG)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.3/p5.min.js"></script>
+  <!-- Load ONLY ml5 (it bundles tfjs) to avoid duplicate backend warnings -->
+  <script src="https://unpkg.com/ml5@0.12.2/dist/ml5.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <style>
+    :root{ --ui-bg:#101013; --ui-fg:#e6e6e6; --ui-bd:#2b2f36; --dbg:#9fe }
+    html,body{margin:0;height:100%;background:#000;color:var(--ui-fg);font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif}
+    *{box-sizing:border-box}
+    #app{position:fixed;inset:0;display:flex;flex-direction:row}
+    #stage{position:relative;flex:1;overflow:hidden;background:#000}
+    canvas{display:block;touch-action:none}
+    #dbg{position:absolute;left:8px;top:8px;z-index:5;background:rgba(0,0,0,.55);
+         padding:6px 8px;border-radius:6px;font:12px/1.2 monospace;color:var(--dbg);white-space:pre;pointer-events:none;display:none}
+
+    /* Right panel (desktop) */
+    #ui{
+      width:340px;height:100%;
+      background:var(--ui-bg);border-left:1px solid var(--ui-bd);
+      overflow:auto;padding:10px;display:flex;flex-direction:column;gap:10px
+    }
+    .h{font-weight:600;font-size:13px;opacity:.9;margin-bottom:4px}
+    .row{border:1px solid var(--ui-bd);border-radius:10px;padding:8px}
+    .g{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+    label{font-size:12px;opacity:.85}
+    select,input[type="range"],input[type="color"],button,input[type="text"]{height:28px}
+    select,input[type="color"],input[type="text"]{
+      background:#0e0e12;color:var(--ui-fg);border:1px solid var(--ui-bd);border-radius:6px;padding:0 6px
+    }
+    input[type="text"]{width:220px}
+    input[type="range"]{width:150px}
+    button{background:#17171c;color:var(--ui-fg);border:1px solid var(--ui-bd);border-radius:8px;padding:0 10px;cursor:pointer}
+    button:disabled{opacity:.5;cursor:not-allowed}
+    .hide{display:none}
+    .support-text{font-size:12px;opacity:.85;line-height:1.4;margin:4px 0 6px}
+    .support-btn{
+      display:inline-flex;align-items:center;gap:6px;
+      background:#ffdd00;color:#222;text-decoration:none;
+      border-radius:999px;padding:6px 12px;font-weight:600;
+      border:none;cursor:pointer;font-size:12px
+    }
+    .support-btn span.icon{font-size:14px}
+    .ig-icon{font-size:14px}
+    .bmc-overlay{
+      position:absolute;right:12px;bottom:12px;z-index:6;
+      background:rgba(0,0,0,.6);border-radius:999px;
+      padding:6px 10px;display:flex;align-items:center;gap:6px;
+      font-size:12px;color:#fff;backdrop-filter:blur(4px)
+    }
+    .bmc-overlay a{
+      text-decoration:none;border-radius:999px;padding:4px 10px;font-weight:600;
+      display:inline-flex;align-items:center;gap:4px;font-size:12px
+    }
+    .bmc-overlay .bmc-link{
+      background:#ffdd00;color:#222;
+    }
+    .bmc-overlay .ig-link{
+      background:transparent;color:#ffdd00;border:1px solid #ffdd00;
+    }
+    .bmc-overlay a span.icon{font-size:14px}
+
+    /* Mobile: overlay panel + gear toggle. Stage stays big. */
+    #toggle{
+      position:absolute;right:12px;top:12px;z-index:6;
+      background:rgba(0,0,0,.7);color:#fff;border:1px solid #333;border-radius:10px;padding:8px 10px
+    }
+    @media (min-width:761px){ #toggle{display:none} }
+
+    @media (max-width:760px){
+      #ui{
+        position:fixed;right:0;top:0;height:100%;width:80vw;
+        transform:translateX(100%);transition:transform .2s ease;
+        max-width:80vw
+      }
+      #ui.open{ transform:translateX(0) }
+      input[type="range"]{width:120px}
+      input[type="text"]{width:180px}
+      label{font-size:11px}
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div id="stage">
+      <button id="toggle" aria-label="Toggle controls">⚙</button>
+      <div id="dbg"></div>
+      <div class="bmc-overlay">
+        <span>Enjoy this? </span>
+        <a class="bmc-link" href="https://buymeacoffee.com/vikmil" target="_blank" rel="noopener noreferrer">
+          <span class="icon">☕</span>
+          <span>Buy me a coffee</span>
+        </a>
+        <a class="ig-link" href="https://instagram.com/iamviktor" target="_blank" rel="noopener noreferrer">
+          <span class="ig-icon">📸</span>
+          <span>follow my insta @iamviktor</span>
+        </a>
+      </div>
+    </div>
+    <div id="ui">
+      <!-- Support / Buy Me a Coffee -->
+      <div class="row">
+        <div class="h">Support this project</div>
+        <div class="g">
+          <div class="support-text">
+            I’m sharing this tool for free for the love of the game.&nbsp;
+            If you enjoy it and want to see it developed further, any donation is genuinely appreciated.
+            Also, follow my insta <span class="ig-icon">📸</span> <a href="https://instagram.com/iamviktor" target="_blank" rel="noopener noreferrer">@iamviktor</a>.
+          </div>
+          <a class="support-btn" href="https://buymeacoffee.com/vikmil" target="_blank" rel="noopener noreferrer">
+            <span class="icon">☕</span>
+            <span>Buy me a coffee</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="sketch.js?v=stable-headcircle-1"></script>
+  <script>
+    document.getElementById('toggle').onclick=()=>document.getElementById('ui').classList.toggle('open');
+    window.addEventListener("error", e=>{
+      const d=document.getElementById("dbg");
+      if(d) d.textContent="error: "+(e.message||"");
+    });
+  </script>
+</body>
+</html>
