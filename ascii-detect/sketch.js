@@ -27,9 +27,9 @@ let chkBoxes, clrBorder, rngBorder, chkLabels, lblTpl, lblSize, lblDec, clrLabel
 
 let chkPoseBox, clrPoseBox, rngPoseBox;
 let chkPoseSkel, clrSkel, rngSkelW;
-let chkPosePts, clrPts, rngPtSize, chkPoseNames;
-let chkHeadBox, clrHeadBox, rngHeadBox;
-let chkHeadCircle, clrHeadCircle, rngHeadCircleW; // NEW: head circle
+let clrHeadBox, rngHeadBox;
+let clrHeadCircle, rngHeadCircleW;
+let clrPts, rngPtSize;
 
 let chkLines, clrLine, rngLineW, rngCurv, chkLineStraight;
 
@@ -40,7 +40,7 @@ let bRecStart, bRecStop, recStatus, recLink;
 let selStyle, inpCustom, chkAutoRows, rngCols, rngFont, rngCellH;
 
 // Luma detection controls
-let chkLumaEnable, chkLumaFeed, chkLumaBoxes, chkLumaLabels;
+let chkLumaEnable, chkLumaFeed, chkLumaBoxes;
 let rngLumaThr, rngLumaGrid, rngLumaMinCells, rngLumaStroke, clrLumaBox;
 
 // Detections
@@ -380,22 +380,23 @@ function draw(){
       }
     }
 
-    // Luma overlay boxes
+    // Luma overlay boxes + labels (reuse object labels toggle)
     const drawLumaBoxes = lumaBoxesCanvas.length && (mode==='luma' || (chkLumaEnable?.checked() && chkLumaBoxes?.checked()));
     if (drawLumaBoxes){
       const lc = clrLumaBox?.value() || "#00ffd5";
       const lw = rngLumaStroke?.value() || 2;
+      const labelPool = ["luma", "pulse", "spark", "glow", "flash", "beam"];
       noFill(); stroke(lc); strokeWeight(lw);
       for (const b of lumaBoxesCanvas){
         rect(b.x, b.y, b.w, b.h, 4);
       }
-      if (chkLumaLabels?.checked()){
+      if (chkLabels?.checked()){
         const tc=color(lc);
         const fs=12;
         noStroke(); fill(red(tc),green(tc),blue(tc));
         textSize(fs); textAlign(LEFT,TOP);
         for (const b of lumaBoxesCanvas){
-          const txt = "luma";
+          const txt = labelPool[Math.floor(Math.random()*labelPool.length)] || "luma";
           let tx=b.x+2, ty=b.y - (fs+4);
           if (ty < 2) ty = b.y + 2;
           text(txt, tx, ty);
@@ -403,7 +404,7 @@ function draw(){
       }
     }
 
-    // Pose: body box + skeleton + keypoints + head box + head circle
+    // Pose: body box + skeleton (shared controls)
     if (mode==='features' && poseReady){
       if (chkPoseBox?.checked()){
         const bc = clrPoseBox?.value() || "#00ffaa";
@@ -412,74 +413,67 @@ function draw(){
         for (const b of boxes) rect(b.x,b.y,b.w,b.h,4);
       }
 
-      // Head box
-      if (chkHeadBox?.checked()){
-        const hc = clrHeadBox?.value() || "#ff66aa";
-        const hw = rngHeadBox?.value() || 3;
-        noFill(); stroke(hc); strokeWeight(hw);
-        for (const hb of headBoxes) rect(hb.x, hb.y, hb.w, hb.h, 4);
-      }
-
-      // Head circle
-      if (chkHeadCircle?.checked()){
-        const cc = clrHeadCircle?.value() || "#00ffcc";
-        const cwk = rngHeadCircleW?.value() || 3;
-        noFill(); stroke(cc); strokeWeight(cwk);
-        for (const hc of headCircles){
-          circle(hc.cx, hc.cy, hc.r*2);
-        }
-      }
-
       const skelOn = chkPoseSkel?.checked();
-      const ptsOn  = chkPosePts?.checked();
-      if (skelOn || ptsOn){
+      if (skelOn){
         const skc = clrSkel?.value() || "#88ccff";
         const skw = rngSkelW?.value() || 3;
-        const ptc = clrPts?.value() || "#ffd166";
-        const psz = rngPtSize?.value() || 4;
+        const headCol = clrHeadBox?.value() || "#ff66aa";
+        const headW = rngHeadBox?.value() || 3;
+        const circCol = clrHeadCircle?.value() || "#00ffcc";
+        const circW = rngHeadCircleW?.value() || 3;
+        const ptCol = clrPts?.value() || "#ffd166";
+        const ptSize = rngPtSize?.value() || 4;
 
+        noFill();
         for (const pr of poses){
           const kps = pr?.pose?.keypoints || [];
-          if (ptsOn){
-            noStroke(); fill(ptc);
-            for (const kp of kps){
-              const s=kp.score??kp.confidence??0; if(s<rngConf.value()) continue;
-              const x = (kp.position?.x||0)/vw*cw;
-              const y = (kp.position?.y||0)/vh*ch;
-              circle(x,y,psz);
-              if (chkPoseNames?.checked()){
-                const nm = kp.part || kp.name || "";
-                textSize(11); fill(ptc); textAlign(LEFT,BOTTOM);
-                text(nm, x+4, y-2);
-              }
+
+          // skeleton lines
+          stroke(skc); strokeWeight(skw);
+          if (Array.isArray(pr.skeleton) && pr.skeleton.length){
+            for (const seg of pr.skeleton){
+              const a=seg[0]?.position, b=seg[1]?.position;
+              if (!a||!b) continue;
+              line(a.x/vw*cw, a.y/vh*ch, b.x/vw*cw, b.y/vh*ch);
+            }
+          }else{
+            const map = {}; for (const kp of kps){ map[kp.part||kp.name]=kp.position; }
+            const pairs = [
+              ["leftShoulder","rightShoulder"],
+              ["leftShoulder","leftElbow"],["leftElbow","leftWrist"],
+              ["rightShoulder","rightElbow"],["rightElbow","rightWrist"],
+              ["leftHip","rightHip"],
+              ["leftShoulder","leftHip"],["rightShoulder","rightHip"],
+              ["leftHip","leftKnee"],["leftKnee","leftAnkle"],
+              ["rightHip","rightKnee"],["rightKnee","rightAnkle"],
+              ["nose","leftEye"],["leftEye","leftEar"],
+              ["nose","rightEye"],["rightEye","rightEar"]
+            ];
+            for (const [p,q] of pairs){
+              const A=map[p], B=map[q]; if(!A||!B) continue;
+              line(A.x/vw*cw, A.y/vh*ch, B.x/vw*cw, B.y/vh*ch);
             }
           }
-          if (skelOn){
-            stroke(skc); strokeWeight(skw); noFill();
-            if (Array.isArray(pr.skeleton) && pr.skeleton.length){
-              for (const seg of pr.skeleton){
-                const a=seg[0]?.position, b=seg[1]?.position;
-                if (!a||!b) continue;
-                line(a.x/vw*cw, a.y/vh*ch, b.x/vw*cw, b.y/vh*ch);
-              }
-            }else{
-              const map = {}; for (const kp of kps){ map[kp.part||kp.name]=kp.position; }
-              const pairs = [
-                ["leftShoulder","rightShoulder"],
-                ["leftShoulder","leftElbow"],["leftElbow","leftWrist"],
-                ["rightShoulder","rightElbow"],["rightElbow","rightWrist"],
-                ["leftHip","rightHip"],
-                ["leftShoulder","leftHip"],["rightShoulder","rightHip"],
-                ["leftHip","leftKnee"],["leftKnee","leftAnkle"],
-                ["rightHip","rightKnee"],["rightKnee","rightAnkle"],
-                ["nose","leftEye"],["leftEye","leftEar"],
-                ["nose","rightEye"],["rightEye","rightEar"]
-              ];
-              for (const [p,q] of pairs){
-                const A=map[p], B=map[q]; if(!A||!B) continue;
-                line(A.x/vw*cw, A.y/vh*ch, B.x/vw*cw, B.y/vh*ch);
-              }
-            }
+
+          // head boxes
+          stroke(headCol); strokeWeight(headW);
+          for (const hb of headBoxes){
+            rect(hb.x, hb.y, hb.w, hb.h, 4);
+          }
+
+          // head circles
+          stroke(circCol); strokeWeight(circW);
+          for (const hc of headCircles){
+            circle(hc.cx, hc.cy, hc.r*2);
+          }
+
+          // keypoints
+          noStroke(); fill(ptCol);
+          for (const kp of kps){
+            const s=kp.score??kp.confidence??0; if(s<rngConf.value()) continue;
+            const x = (kp.position?.x||0)/vw*cw;
+            const y = (kp.position?.y||0)/vh*ch;
+            circle(x,y,ptSize);
           }
         }
       }
@@ -595,14 +589,13 @@ function buildUI(){
   chkLumaEnable=createCheckbox("Enable", false);
   chkLumaFeed=createCheckbox("Feed ASCII/detect", true);
   chkLumaBoxes=createCheckbox("Show boxes", true);
-  chkLumaLabels=createCheckbox("Labels", false);
   clrLumaBox=createColorPicker("#00ffd5");
   rngLumaStroke=createSlider(1,8,2,1);
   rngLumaThr=createSlider(0,255,170,1);
   rngLumaGrid=createSlider(10,120,40,1);
   rngLumaMinCells=createSlider(1,20,3,1);
   section("Luma detection", [
-    chkLumaEnable, chkLumaFeed, chkLumaBoxes, chkLumaLabels,
+    chkLumaEnable, chkLumaFeed, chkLumaBoxes,
     label("Color"), clrLumaBox, label("px"), rngLumaStroke,
     label("Thr"), rngLumaThr,
     label("Grid"), rngLumaGrid,
@@ -623,29 +616,25 @@ function buildUI(){
     chkLabels, label("Tpl"), lblTpl, label("Size"), lblSize, label("Dec"), lblDec, label("Txt"), clrLabel
   ]);
 
-  // Pose features + head box + head circle
+  // Pose features (simplified)
   chkPoseBox=createCheckbox("Body box", false);
   clrPoseBox=createColorPicker("#00ffaa");
   rngPoseBox=createSlider(1,12,3,1);
-  chkHeadBox=createCheckbox("Head box", true);
-  clrHeadBox=createColorPicker("#ff66aa");
-  rngHeadBox=createSlider(1,12,3,1);
-  chkHeadCircle=createCheckbox("Head circle", true);
-  clrHeadCircle=createColorPicker("#00ffcc");
-  rngHeadCircleW=createSlider(1,12,3,1);
   chkPoseSkel=createCheckbox("Skeleton", true);
   clrSkel=createColorPicker("#88ccff");
   rngSkelW=createSlider(1,12,3,1);
-  chkPosePts=createCheckbox("Keypoints", true);
+  clrHeadBox=createColorPicker("#ff66aa");
+  rngHeadBox=createSlider(1,12,3,1);
+  clrHeadCircle=createColorPicker("#00ffcc");
+  rngHeadCircleW=createSlider(1,12,3,1);
   clrPts=createColorPicker("#ffd166");
   rngPtSize=createSlider(2,12,4,1);
-  chkPoseNames=createCheckbox("Names", false);
   section("Pose features", [
     chkPoseBox, label("BoxCol"), clrPoseBox, label("px"), rngPoseBox,
-    chkHeadBox, label("HeadCol"), clrHeadBox, label("px"), rngHeadBox,
-    chkHeadCircle, label("CircCol"), clrHeadCircle, label("px"), rngHeadCircleW,
-    chkPoseSkel, label("SkelCol"), clrSkel, label("px"), rngSkelW,
-    chkPosePts, label("PtCol"), clrPts, label("size"), rngPtSize, chkPoseNames
+    chkPoseSkel, label("BodyCol"), clrSkel, label("px"), rngSkelW,
+    label("HeadCol"), clrHeadBox, label("px"), rngHeadBox,
+    label("CircCol"), clrHeadCircle, label("px"), rngHeadCircleW,
+    label("PtCol"), clrPts, label("size"), rngPtSize
   ]);
 
   // ASCII basics
