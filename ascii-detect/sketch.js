@@ -14,6 +14,7 @@ let charW=8, lineH=10;
 let DENSITY = "Ñ@#W$9876543210?!abc;:+=-,._          ";
 let CHAR_LUT = new Array(256);        // 0..255 -> char
 let PAL_LUT  = new Array(256);        // 0..255 -> [r,g,b]
+let fakePortrait = false;             // visual-only portrait aspect (squished/cropped)
 
 // UI refs
 let ui;
@@ -92,7 +93,15 @@ function setup(){
 
 // ------- Responsive scaling -------
 function fitCanvasToViewport(){
-  if (chkAutoRows && chkAutoRows.checked() && vidReady) recomputeRowsToMatchAspect();
+  // Auto rows from video aspect when not in fake portrait mode
+  if (!fakePortrait && chkAutoRows && chkAutoRows.checked() && vidReady){
+    recomputeRowsToMatchAspect();
+  }
+
+  // Fake portrait: exaggerate vertical cells for tall aspect, keep detections in video space
+  if (fakePortrait){
+    ROWS = Math.max(8, Math.round(COLS * 1.6)); // ~taller than 9:16, adjust if needed
+  }
   const W = Math.max(1, Math.floor(charW*COLS));
   const H = Math.max(1, Math.floor(lineH*ROWS) + FONT_PX);
   resizeCanvas(W, H);
@@ -237,7 +246,9 @@ function draw(){
           return { x, y, w, h, label:b.label, score:b.score };
         })
         // Ignore giant boxes that basically cover the whole frame (they look like glitches)
-        .filter(b => !((b.w/vw)>=MAX_BOX_FRAC && (b.h/vh)>=MAX_BOX_FRAC));
+        .filter(b => !((b.w/vw)>=MAX_BOX_FRAC && (b.h/vh)>=MAX_BOX_FRAC))
+        // Apply confidence threshold slider for objects as well
+        .filter(b => (b.score ?? 0) >= conf);
     } else if (mode==='features' && poseReady){
       boxesVid = getPoseBoxes(vw, vh, conf);
       headBoxesVid = getHeadBoxes(vw, vh, conf);
@@ -490,11 +501,14 @@ function buildUI(){
   selRes.selected("landscape");
   selRes.changed(()=>{
     if (selRes.value()==="portrait"){
+      fakePortrait = true;
       CAM_W = 480; CAM_H = 640;
     } else {
+      fakePortrait = false;
       CAM_W = 640; CAM_H = 480;
     }
     initCamera(lastCamId);
+    fitCanvasToViewport();
   });
   section("Camera", [
     label("Cam"), selCam,
