@@ -293,12 +293,27 @@ function draw(){
         const rowBase=sy*vw*4;
         for (let i=0;i<COLS;i++){
           const sx=Math.min(vw-1, Math.floor(i*vw/COLS));
-          if (asciiOnly && mode!=='off' && !pointInAnyBox(sx, sy, boxesVid)) { xCanvas+=charW; continue; }
-
           const k=rowBase + sx*4;
           if (k+2 >= pix.length) { xCanvas+=charW; continue; }
           const r=pix[k], g=pix[k+1], b=pix[k+2];
           const v=((r+g+b)/3)|0;
+
+          // ASCII-in-box semantics:
+          // - If mode !== 'off', use ML detections (objects / pose) as before.
+          // - If mode === 'off' and threshold is enabled, treat bright pixels (v >= thr)
+          //   as "detections" so ASCII-in-box still works with pure thresholding.
+          if (asciiOnly){
+            if (mode!=='off'){
+              if (!pointInAnyBox(sx, sy, boxesVid)) { xCanvas+=charW; continue; }
+            } else if (useThr){
+              if (v < thr){ xCanvas+=charW; continue; }
+            } else {
+              // ascii-in-box + mode off + no threshold => nothing to draw
+              xCanvas+=charW; continue;
+            }
+          }
+
+          // Global threshold (when used) still gates ASCII brightness
           if (useThr && v < thr){ xCanvas+=charW; continue; }
 
           const vv = inv ? (255 - v) : v;
