@@ -950,15 +950,17 @@ function getHeadCircles(vw,vh,conf){
 // Bright-area detector: cluster thresholded luma into boxes (video space)
 function getLumaBoxes(vw, vh){
   const out = [];
-  if (!videoHasData() || !chkThr?.checked()) return out;
+  if (!videoHasData()) return out;
 
   // Downsample grid for luma detection (coarse to keep it cheap)
   const Gx = 40, Gy = 30;
   const cellW = vw / Gx, cellH = vh / Gy;
   const mask = new Array(Gx*Gy).fill(0);
 
-  // Use same threshold slider (rngThr) as ASCII
-  const thr = rngThr?.value() ?? 180;
+  // Use detection confidence slider as brightness threshold:
+  // lower confidence => lower threshold => more bright areas detected.
+  const confVal = (rngConf && typeof rngConf.value==="function") ? rngConf.value() : 0.5;
+  const thr = Math.max(0, Math.min(255, Math.round(confVal * 255)));
 
   vid.loadPixels();
   const pix = vid.pixels;
@@ -990,12 +992,11 @@ function getLumaBoxes(vw, vh){
       let minX=gx, maxX=gx, minY=gy, maxY=gy;
       let size=0;
       const stack=[[gx,gy]];
-      seen[idx]=1;
 
       while(stack.length){
         const [cx,cy]=stack.pop();
         const cidx = cy*Gx + cx;
-        if (!mask[cidx] || seen[cidx]) continue;
+        if (!inBounds(cx,cy) || !mask[cidx] || seen[cidx]) continue;
         seen[cidx]=1;
         size++;
         if (cx<minX) minX=cx; if (cx>maxX) maxX=cx;
