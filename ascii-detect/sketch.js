@@ -489,12 +489,15 @@ function draw(){
     if (chkLines?.checked() && mode!=='off' && boxes.length>=2){
       const lc=color(clrLine?.value() || "#88ccff");
       const lw=rngLineW?.value() || 3;
-      const curv = chkLineStraight?.checked() ? 0 : (rngCurv?.value() || 0.6);
+      const sliderCurv = Number(rngCurv?.value());
+      const curv = chkLineStraight?.checked()
+        ? 0
+        : (Number.isFinite(sliderCurv) ? sliderCurv : 0.6);
       stroke(red(lc),green(lc),blue(lc)); strokeWeight(lw); noFill();
       for (let i=0;i<boxes.length;i++){
         for (let j=i+1;j<boxes.length;j++){
           const a=center(boxes[i]), b=center(boxes[j]);
-          if (curv===0){
+          if (Math.abs(curv) < 1e-6){
             line(a.x,a.y,b.x,b.y);
           }else{
             const mx=(a.x+b.x)/2, my=(a.y+b.y)/2;
