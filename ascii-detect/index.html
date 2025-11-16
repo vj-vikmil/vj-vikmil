@@ -213,31 +213,14 @@
       if(d) d.textContent="error: "+(e.message||"");
     });
   </script>
-  <script>
-    (function(){
-      const visitEl = document.getElementById("visit-count");
-      if (!visitEl) return;
-      const ns = "vikmil.com";
-      const key = "ascii-detect";
-      async function updateVisits(){
-        try{
-          const res = await fetch(`https://api.countapi.xyz/hit/${encodeURIComponent(ns)}/${encodeURIComponent(key)}`);
-          if (!res.ok) throw new Error("count api");
-          const data = await res.json();
-          visitEl.textContent = (data.value ?? 0).toLocaleString();
-        }catch(err){
-          visitEl.textContent = "—";
-        }
-      }
-      updateVisits();
-    })();
-  </script>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
-    import { getDatabase, ref, set, onValue, onDisconnect, remove } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js";
+    import { getDatabase, ref, set, onValue, onDisconnect, remove, runTransaction } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js";
 
+    const visitEl = document.getElementById("visit-count");
     const onlineEl = document.getElementById("online-count");
-    if (onlineEl){
+
+    if (visitEl || onlineEl){
       const firebaseConfig = {
         apiKey: "AIzaSyDZMCYEs9EGTjHKCFKkFAx-qB5dDzmxHMM",
         authDomain: "online-now-f1628.firebaseapp.com",
@@ -251,28 +234,39 @@
 
       const app = initializeApp(firebaseConfig);
       const db = getDatabase(app);
-      const sessionId = (crypto.randomUUID && crypto.randomUUID()) || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-      const presenceRef = ref(db, `presence/${sessionId}`);
-      const heartbeat = () => set(presenceRef, Date.now());
-      heartbeat();
-      onDisconnect(presenceRef).remove();
-      setInterval(heartbeat, 25000);
 
-      const onlineRef = ref(db, "presence");
-      const STALE_AFTER = 60000;
-      onValue(onlineRef, snap=>{
-        const val = snap.val() || {};
-        const now = Date.now();
-        let count = 0;
-        for (const [key, ts] of Object.entries(val)){
-          if (typeof ts === "number" && now - ts <= STALE_AFTER){
-            count++;
-          } else {
-            remove(ref(db, `presence/${key}`));
+      if (visitEl){
+        const visitsRef = ref(db, "visits");
+        runTransaction(visitsRef, current => (current || 0) + 1);
+        onValue(visitsRef, snap=>{
+          visitEl.textContent = ((snap.val() || 0)).toLocaleString();
+        });
+      }
+
+      if (onlineEl){
+        const sessionId = (crypto.randomUUID && crypto.randomUUID()) || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+        const presenceRef = ref(db, `presence/${sessionId}`);
+        const heartbeat = () => set(presenceRef, Date.now());
+        heartbeat();
+        onDisconnect(presenceRef).remove();
+        setInterval(heartbeat, 25000);
+
+        const onlineRef = ref(db, "presence");
+        const STALE_AFTER = 60000;
+        onValue(onlineRef, snap=>{
+          const val = snap.val() || {};
+          const now = Date.now();
+          let count = 0;
+          for (const [key, ts] of Object.entries(val)){
+            if (typeof ts === "number" && now - ts <= STALE_AFTER){
+              count++;
+            } else {
+              remove(ref(db, `presence/${key}`));
+            }
           }
-        }
-        onlineEl.textContent = count.toString();
-      });
+          onlineEl.textContent = count.toString();
+        });
+      }
     }
   </script>
 </body>
