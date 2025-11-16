@@ -3,7 +3,7 @@
 // 25fps PNG sequence with cap. Multiple ASCII styles. Palette LUT. One-detector-at-a-time.
 
 // ------- Config -------
-const CAM_W = 640, CAM_H = 480;
+let CAM_W = 640, CAM_H = 480; // default landscape; can be toggled via UI
 let COLS = 160, ROWS = 120, FONT_PX = 12;
 const PNG_MAX_FRAMES = 900; // ~36s at 25 fps
 const MAX_BOX_FRAC = 0.9;   // drop detections that cover ~whole frame to avoid full-screen glitches
@@ -17,7 +17,7 @@ let PAL_LUT  = new Array(256);        // 0..255 -> [r,g,b]
 
 // UI refs
 let ui;
-let selCam, bUse, bRescan, bNext;
+let selCam, selRes, bUse, bRescan, bNext;
 
 let chkVideo, chkAscii, chkAsciiOnly, chkThr, rngThr, chkInv;
 let selDet, rngConf;
@@ -467,11 +467,24 @@ function buildUI(){
   ui = select('#ui');
 
   // Camera
+  selCam=createSelect();
+  selRes=createSelect();
+  ["landscape","portrait"].forEach(x=>selRes.option(x));
+  selRes.selected("landscape");
+  selRes.changed(()=>{
+    if (selRes.value()==="portrait"){
+      CAM_W = 480; CAM_H = 640;
+    } else {
+      CAM_W = 640; CAM_H = 480;
+    }
+    initCamera(lastCamId);
+  });
   section("Camera", [
-    label("Cam"), selCam=createSelect(),
+    label("Cam"), selCam,
     bUse=btn("Use", ()=>{ const id=selCam.value(); lastCamId=id||null; initCamera(id); }),
     bRescan=btn("Rescan", listCams),
-    bNext=btn("Next", nextCam)
+    bNext=btn("Next", nextCam),
+    label("Res"), selRes
   ]);
 
   // Detection mode
