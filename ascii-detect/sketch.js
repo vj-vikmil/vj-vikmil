@@ -134,6 +134,12 @@ function nextCam(){
 }
 async function initCamera(deviceId=null){
   stopCocoLoop();
+  // Recreate PoseNet on new video stream (needed when switching resolutions)
+  if (poseNet){
+    try{ poseNet.remove && poseNet.remove(); }catch(_){}
+    poseNet = null;
+    poseReady = false;
+  }
   if (vid){
     try{ stopAllTracks(); }catch(_){}
     try{ vid.remove(); }catch(_){}
