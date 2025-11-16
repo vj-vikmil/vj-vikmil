@@ -253,6 +253,8 @@ function draw(){
       boxesVid = getPoseBoxes(vw, vh, conf);
       headBoxesVid = getHeadBoxes(vw, vh, conf);
       headCirclesVid = getHeadCircles(vw, vh, conf);
+    } else if (mode==='luma'){
+      boxesVid = getLumaBoxes(vw, vh);
     }
 
     // If ASCII only inside detections, mask those regions first
@@ -533,11 +535,14 @@ function buildUI(){
     label("Res"), selRes
   ]);
 
-  // Detection mode
-  selDet=createSelect(); ["off","objects","features"].forEach(x=>selDet.option(x)); selDet.selected("features");
+  // Detection mode (off / objects / features / luma)
+  selDet=createSelect(); ["off","objects","features","luma"].forEach(x=>selDet.option(x)); selDet.selected("features");
   rngConf=createSlider(0.1,0.9,0.5,0.01);
   section("Detection", [ label("Mode"), selDet, label("Conf"), rngConf ]);
-  selDet.changed(()=>{ if (selDet.value()==="objects") maybeStartCoco(); else stopCocoLoop(); });
+  selDet.changed(()=>{
+    if (selDet.value()==="objects") maybeStartCoco();
+    else stopCocoLoop();
+  });
 
   // Objects
   chkBoxes=createCheckbox("Boxes", true);
@@ -938,6 +943,82 @@ function getHeadCircles(vw,vh,conf){
       out.push({ cx, cy, r });
     }
   }
+  return out;
+}
+
+// Bright-area detector: cluster thresholded luma into boxes (video space)
+function getLumaBoxes(vw, vh){
+  const out = [];
+  if (!videoHasData() || !chkThr?.checked()) return out;
+
+  // Downsample grid for luma detection (coarse to keep it cheap)
+  const Gx = 40, Gy = 30;
+  const cellW = vw / Gx, cellH = vh / Gy;
+  const mask = new Array(Gx*Gy).fill(0);
+
+  // Use same threshold slider (rngThr) as ASCII
+  const thr = rngThr?.value() ?? 180;
+
+  vid.loadPixels();
+  const pix = vid.pixels;
+
+  for (let gy=0; gy<Gy; gy++){
+    const sy = Math.min(vh-1, Math.floor((gy+0.5)*cellH));
+    const rowBase = sy * vw * 4;
+    for (let gx=0; gx<Gx; gx++){
+      const sx = Math.min(vw-1, Math.floor((gx+0.5)*cellW));
+      const k = rowBase + sx*4;
+      if (k+2 >= pix.length) continue;
+      const r = pix[k], g = pix[k+1], b = pix[k+2];
+      const v = ((r+g+b)/3)|0;
+      if (v >= thr) mask[gy*Gx + gx] = 1;
+    }
+  }
+
+  // Simple connected components on grid (4-neighbour)
+  const seen = new Array(Gx*Gy).fill(0);
+  const minCells = 3; // ignore tiny noise blobs
+
+  const inBounds = (x,y)=> x>=0 && x<Gx && y>=0 && y<Gy;
+
+  for (let gy=0; gy<Gy; gy++){
+    for (let gx=0; gx<Gx; gx++){
+      const idx = gy*Gx + gx;
+      if (!mask[idx] || seen[idx]) continue;
+
+      let minX=gx, maxX=gx, minY=gy, maxY=gy;
+      let size=0;
+      const stack=[[gx,gy]];
+      seen[idx]=1;
+
+      while(stack.length){
+        const [cx,cy]=stack.pop();
+        const cidx = cy*Gx + cx;
+        if (!mask[cidx] || seen[cidx]) continue;
+        seen[cidx]=1;
+        size++;
+        if (cx<minX) minX=cx; if (cx>maxX) maxX=cx;
+        if (cy<minY) minY=cy; if (cy>maxY) maxY=cy;
+
+        const nbrs=[[cx-1,cy],[cx+1,cy],[cx,cy-1],[cx,cy+1]];
+        for (const [nx,ny] of nbrs){
+          if (!inBounds(nx,ny)) continue;
+          const nidx=ny*Gx + nx;
+          if (mask[nidx] && !seen[nidx]) stack.push([nx,ny]);
+        }
+      }
+
+      if (size < minCells) continue;
+
+      // Convert grid bounds to video-space box
+      const x = minX * cellW;
+      const y = minY * cellH;
+      const w = Math.max(1, (maxX-minX+1) * cellW);
+      const h = Math.max(1, (maxY-minY+1) * cellH);
+      out.push({ x, y, w, h, label:'luma', score:1 });
+    }
+  }
+
   return out;
 }
 
