@@ -154,6 +154,11 @@ async function onVideoReady(){
   maybeStartCoco();          // start coco if mode=objects
   if (chkAutoRows && chkAutoRows.checked()) recomputeRowsToMatchAspect();
   fitCanvasToViewport();
+  // Debug: show actual camera resolution so we can verify landscape/portrait
+  try{
+    const vw = vid.width, vh = vid.height;
+    log(`cam: ${vw}x${vh} (${vw>=vh?"landscape":"portrait"})`);
+  }catch(_){}
 }
 
 // ------- Detectors -------
@@ -466,6 +471,12 @@ function recomputeRowsToMatchAspect(){
 function buildUI(){
   ui = select('#ui');
 
+  // Presets row (added first so user sees it quickly)
+  section("Presets", [
+    btn("ASCII fast", applyPresetAsciiFast),
+    btn("Pose balanced", applyPresetPoseBalanced)
+  ]);
+
   // Camera
   selCam=createSelect();
   selRes=createSelect();
@@ -613,6 +624,77 @@ function buildUI(){
 
   // Kick detectors according to current mode
   maybeStartCoco();
+}
+
+// ------- Presets (performance / quality) -------
+function applyPresetAsciiFast(){
+  // No ML, pure ASCII, tuned for FPS
+  if (selDet) selDet.value("off");
+  if (chkVideo) chkVideo.checked(false);
+  if (chkAscii) chkAscii.checked(true);
+  if (chkAsciiOnly) chkAsciiOnly.checked(false);
+  if (chkLines) chkLines.checked(false);
+
+  if (rngCols){
+    rngCols.value(120);
+    COLS = 120;
+  }
+  if (chkAutoRows) chkAutoRows.checked(true);
+
+  if (rngFont){
+    rngFont.value(12);
+    FONT_PX = 12;
+    applyFontMetrics();
+  }
+
+  // Simple cyberpunk palette, no video colors
+  if (chkVideoColors) chkVideoColors.checked(false);
+  if (selPalette) selPalette.value("cyberpunk");
+
+  recomputeRowsToMatchAspect();
+  fitCanvasToViewport();
+}
+
+function applyPresetAsciiPoseBalanced(){
+  // Back-compat alias if referenced somewhere; keep behavior same as balanced preset
+  applyPresetPoseBalanced();
+}
+
+function applyPresetPoseBalanced(){
+  // Pose features on, but keep grid moderate
+  if (selDet) selDet.value("features");
+  if (rngConf && typeof rngConf.value === "function") rngConf.value(0.6);
+
+  if (chkVideo) chkVideo.checked(true);
+  if (chkAscii) chkAscii.checked(true);
+  if (chkAsciiOnly) chkAsciiOnly.checked(false);
+
+  // Turn on key pose visuals, off extras that are heavy
+  if (chkPoseBox) chkPoseBox.checked(true);
+  if (chkHeadBox) chkHeadBox.checked(true);
+  if (chkHeadCircle) chkHeadCircle.checked(true);
+  if (chkPoseSkel) chkPoseSkel.checked(true);
+  if (chkPosePts) chkPosePts.checked(true);
+  if (chkPoseNames) chkPoseNames.checked(false);
+  if (chkLines) chkLines.checked(false);
+
+  if (rngCols){
+    rngCols.value(120);
+    COLS = 120;
+  }
+  if (chkAutoRows) chkAutoRows.checked(true);
+
+  if (rngFont){
+    rngFont.value(12);
+    FONT_PX = 12;
+    applyFontMetrics();
+  }
+
+  if (chkVideoColors) chkVideoColors.checked(false);
+  if (selPalette) selPalette.value("cyberpunk");
+
+  recomputeRowsToMatchAspect();
+  fitCanvasToViewport();
 }
 
 function section(title, nodes){
