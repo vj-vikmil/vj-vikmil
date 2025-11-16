@@ -31,7 +31,7 @@ let chkPosePts, clrPts, rngPtSize, chkPoseNames;
 let chkHeadBox, clrHeadBox, rngHeadBox;
 let chkHeadCircle, clrHeadCircle, rngHeadCircleW; // NEW: head circle
 
-let chkLines, clrLine, rngLineW, rngCurv;
+let chkLines, clrLine, rngLineW, rngCurv, chkLineStraight;
 
 let chkVideoColors, selPalette, clrA, clrB, wrapA, wrapB, clrBG;
 
@@ -40,7 +40,7 @@ let bRecStart, bRecStop, recStatus, recLink;
 let selStyle, inpCustom, chkAutoRows, rngCols, rngFont, rngCellH;
 
 // Luma detection controls
-let chkLumaEnable, chkLumaFeed, chkLumaBoxes;
+let chkLumaEnable, chkLumaFeed, chkLumaBoxes, chkLumaLabels;
 let rngLumaThr, rngLumaGrid, rngLumaMinCells, rngLumaStroke, clrLumaBox;
 
 // Detections
@@ -389,6 +389,18 @@ function draw(){
       for (const b of lumaBoxesCanvas){
         rect(b.x, b.y, b.w, b.h, 4);
       }
+      if (chkLumaLabels?.checked()){
+        const tc=color(lc);
+        const fs=12;
+        noStroke(); fill(red(tc),green(tc),blue(tc));
+        textSize(fs); textAlign(LEFT,TOP);
+        for (const b of lumaBoxesCanvas){
+          const txt = "luma";
+          let tx=b.x+2, ty=b.y - (fs+4);
+          if (ty < 2) ty = b.y + 2;
+          text(txt, tx, ty);
+        }
+      }
     }
 
     // Pose: body box + skeleton + keypoints + head box + head circle
@@ -477,7 +489,7 @@ function draw(){
     if (chkLines?.checked() && mode!=='off' && boxes.length>=2){
       const lc=color(clrLine?.value() || "#88ccff");
       const lw=rngLineW?.value() || 3;
-      const curv=rngCurv?.value() || 0.6;
+      const curv = chkLineStraight?.checked() ? 0 : (rngCurv?.value() || 0.6);
       stroke(red(lc),green(lc),blue(lc)); strokeWeight(lw); noFill();
       for (let i=0;i<boxes.length;i++){
         for (let j=i+1;j<boxes.length;j++){
@@ -580,13 +592,14 @@ function buildUI(){
   chkLumaEnable=createCheckbox("Enable", false);
   chkLumaFeed=createCheckbox("Feed ASCII/detect", true);
   chkLumaBoxes=createCheckbox("Show boxes", true);
+  chkLumaLabels=createCheckbox("Labels", false);
   clrLumaBox=createColorPicker("#00ffd5");
   rngLumaStroke=createSlider(1,8,2,1);
   rngLumaThr=createSlider(0,255,170,1);
   rngLumaGrid=createSlider(10,120,40,1);
   rngLumaMinCells=createSlider(1,20,3,1);
   section("Luma detection", [
-    chkLumaEnable, chkLumaFeed, chkLumaBoxes,
+    chkLumaEnable, chkLumaFeed, chkLumaBoxes, chkLumaLabels,
     label("Color"), clrLumaBox, label("px"), rngLumaStroke,
     label("Thr"), rngLumaThr,
     label("Grid"), rngLumaGrid,
@@ -700,10 +713,11 @@ function buildUI(){
 
   // Lines
   chkLines=createCheckbox("Lines", false);
+  chkLineStraight=createCheckbox("Straight", false);
   clrLine=createColorPicker("#8cf");
   rngLineW=createSlider(1,8,3,1);
   rngCurv=createSlider(0,1.5,0.6,0.01);
-  section("Lines between detections", [ chkLines, label("Curv"), rngCurv, label("Color"), clrLine, label("px"), rngLineW ]);
+  section("Lines between detections", [ chkLines, chkLineStraight, label("Curv"), rngCurv, label("Color"), clrLine, label("px"), rngLineW ]);
 
   // PNG recorder
   bRecStart=btn("Start PNG 25fps", startPng);

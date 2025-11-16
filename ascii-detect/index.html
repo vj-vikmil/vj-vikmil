@@ -63,6 +63,26 @@
       background:transparent;color:#ffdd00;border:1px solid #ffdd00;
     }
     .bmc-overlay a span.icon{font-size:14px}
+    .stat-block{
+      display:flex;
+      flex-direction:column;
+      min-width:120px;
+      padding:8px 10px;
+      border:1px solid var(--ui-bd);
+      border-radius:8px;
+      background:#15151b;
+    }
+    .stat-label{
+      font-size:11px;
+      opacity:.7;
+      text-transform:uppercase;
+      letter-spacing:0.05em;
+    }
+    .stat-value{
+      font-size:20px;
+      font-weight:600;
+      margin-top:4px;
+    }
 
     /* Mobile: overlay panel + gear toggle. Stage stays big. */
     #toggle{
@@ -121,6 +141,19 @@
           </a>
         </div>
       </div>
+      <div class="row">
+        <div class="h">Live stats</div>
+        <div class="g">
+          <div class="stat-block">
+            <span class="stat-label">Total visitors</span>
+            <span class="stat-value" id="visit-count">—</span>
+          </div>
+          <div class="stat-block">
+            <span class="stat-label">Online now</span>
+            <span class="stat-value" id="online-count">0</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
   <!-- bump version to bust browser cache so new UI (Res, Presets, Luma panel) shows up -->
@@ -131,6 +164,68 @@
       const d=document.getElementById("dbg");
       if(d) d.textContent="error: "+(e.message||"");
     });
+  </script>
+  <script>
+    (function(){
+      const visitEl = document.getElementById("visit-count");
+      if (!visitEl) return;
+      const ns = "vikmil.com";
+      const key = "ascii-detect";
+      async function updateVisits(){
+        try{
+          const res = await fetch(`https://api.countapi.xyz/hit/${encodeURIComponent(ns)}/${encodeURIComponent(key)}`);
+          if (!res.ok) throw new Error("count api");
+          const data = await res.json();
+          visitEl.textContent = (data.value ?? 0).toLocaleString();
+        }catch(err){
+          visitEl.textContent = "—";
+        }
+      }
+      updateVisits();
+    })();
+  </script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+    import { getDatabase, ref, set, onValue, onDisconnect, remove } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js";
+
+    const onlineEl = document.getElementById("online-count");
+    if (onlineEl){
+      const firebaseConfig = {
+        apiKey: "AIzaSyDZMCYEs9EGTjHKCFKkFAx-qB5dDzmxHMM",
+        authDomain: "online-now-f1628.firebaseapp.com",
+        databaseURL: "https://online-now-f1628-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "online-now-f1628",
+        storageBucket: "online-now-f1628.firebasestorage.app",
+        messagingSenderId: "876159780240",
+        appId: "1:876159780240:web:3969ef80b224b54ff69f15",
+        measurementId: "G-VXJMJP1Z87"
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getDatabase(app);
+      const sessionId = (crypto.randomUUID && crypto.randomUUID()) || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      const presenceRef = ref(db, `presence/${sessionId}`);
+      const heartbeat = () => set(presenceRef, Date.now());
+      heartbeat();
+      onDisconnect(presenceRef).remove();
+      setInterval(heartbeat, 25000);
+
+      const onlineRef = ref(db, "presence");
+      const STALE_AFTER = 60000;
+      onValue(onlineRef, snap=>{
+        const val = snap.val() || {};
+        const now = Date.now();
+        let count = 0;
+        for (const [key, ts] of Object.entries(val)){
+          if (typeof ts === "number" && now - ts <= STALE_AFTER){
+            count++;
+          } else {
+            remove(ref(db, `presence/${key}`));
+          }
+        }
+        onlineEl.textContent = count.toString();
+      });
+    }
   </script>
 </body>
 </html>
