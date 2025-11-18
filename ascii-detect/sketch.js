@@ -803,14 +803,32 @@ function startMp4(){
         return;
       }
       recStatus.html(" Processing…");
-      const blob = new Blob(mp4Rec.chunks, { type: mimeType });
-      const url = URL.createObjectURL(blob);
-      recLink.attribute("href", url);
-      const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
-      recLink.attribute("download", `ascii_recording.${ext}`);
-      recLink.html(`Download ${ext.toUpperCase()}`);
-      const sizeMB = (blob.size / (1024*1024)).toFixed(1);
-      recStatus.html(` Ready (${sizeMB}MB)`);
+      try {
+        const blob = new Blob(mp4Rec.chunks, { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        recLink.attribute("href", url);
+        const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
+        recLink.attribute("download", `ascii_recording.${ext}`);
+        recLink.html(`Download ${ext.toUpperCase()}`);
+        
+        // Make link visible and clickable
+        recLink.style("display", "inline-block");
+        recLink.style("color", "#00ff88");
+        recLink.style("text-decoration", "underline");
+        recLink.style("cursor", "pointer");
+        recLink.style("margin-left", "8px");
+        
+        // Auto-trigger download
+        setTimeout(() => {
+          if (recLink && recLink.elt) recLink.elt.click();
+        }, 100);
+        
+        const sizeMB = (blob.size / (1024*1024)).toFixed(1);
+        recStatus.html(` Ready (${sizeMB}MB) - Click link if download didn't start`);
+      } catch(e) {
+        console.error("Download error:", e);
+        recStatus.html(" Error creating download");
+      }
       mp4Rec.chunks = [];
     };
     
@@ -830,7 +848,9 @@ function startMp4(){
 function stopMp4(){
   if (!mp4Rec.active || !mp4Rec.recorder) return;
   try{
-    mp4Rec.recorder.stop();
+    if (mp4Rec.recorder.state === 'recording' || mp4Rec.recorder.state === 'paused') {
+      mp4Rec.recorder.stop();
+    }
     if (mp4Rec.stream){
       mp4Rec.stream.getTracks().forEach(track => track.stop());
       mp4Rec.stream = null;
