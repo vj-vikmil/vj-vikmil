@@ -455,13 +455,18 @@ function draw(){
         ? 0
         : (Number.isFinite(sliderCurv) ? sliderCurv : 0.6);
       const maxPairs = Math.max(1, Math.round(rngLinePairs?.value() || 9999));
+      const shuffled = [...boxes];
+      for (let i=shuffled.length-1; i>0; i--){
+        const j = Math.floor(Math.random()*(i+1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
       stroke(red(lc),green(lc),blue(lc)); strokeWeight(lw); noFill();
       let drawn = 0;
-      for (let i=0;i<boxes.length;i++){
+      for (let i=0;i<shuffled.length;i++){
         if (drawn >= maxPairs) break;
-        for (let j=i+1;j<boxes.length;j++){
+        for (let j=i+1;j<shuffled.length;j++){
           if (drawn >= maxPairs) break;
-          const a=center(boxes[i]), b=center(boxes[j]);
+          const a=center(shuffled[i]), b=center(shuffled[j]);
           if (Math.abs(curv) < 1e-6){
             line(a.x,a.y,b.x,b.y);
           }else{
