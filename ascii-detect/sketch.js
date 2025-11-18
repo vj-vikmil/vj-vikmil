@@ -1,11 +1,11 @@
 // Stable, responsive ASCII + COCO objects OR Pose features (skeleton/keypoints + head box + head circle).
 // Desktop: right panel. Mobile: overlay panel via ⚙. No Unlock button.
-// 25fps PNG sequence with cap. Multiple ASCII styles. Palette LUT. One-detector-at-a-time.
+// MP4 video recording. Multiple ASCII styles. Palette LUT. One-detector-at-a-time.
 
 // ------- Config -------
 let CAM_W = 640, CAM_H = 480; // default landscape; can be toggled via UI
 let COLS = 160, ROWS = 120, FONT_PX = 12;
-const PNG_MAX_FRAMES = 900; // ~36s at 25 fps
+const MP4_MAX_DURATION = 60000; // 60 seconds max recording
 const MAX_BOX_FRAC = 0.9;   // drop detections that cover ~whole frame to avoid full-screen glitches
 
 // ------- State -------
@@ -48,8 +48,8 @@ let poseNet=null, poses=[], poseReady=false;
 // Cameras
 let devices=[], lastCamId=null, camIndex=0;
 
-// PNG recorder
-let pngRec={ active:false, frames:[], nextIdx:0, lastMs:0, intervalMs:40, pending:false };
+// MP4 video recorder
+let mp4Rec={ active:false, recorder:null, chunks:[], stream:null, startTime:0 };
 
 // ------- Setup -------
 function setup(){
@@ -485,21 +485,14 @@ function draw(){
       }
     }
 
-    // PNG 25fps with cap
-    if (pngRec.active && !pngRec.pending && (millis() - pngRec.lastMs) >= pngRec.intervalMs){
-      if (pngRec.nextIdx >= PNG_MAX_FRAMES){ stopPng(); }
-      else {
-        pngRec.pending = true;
-        pngRec.lastMs = millis();
-        const name = `frame_${String(pngRec.nextIdx).padStart(5,'0')}.png`;
-        cv.elt.toBlob((blob)=>{
-          if (blob){
-            pngRec.frames.push({ name, blob });
-            pngRec.nextIdx++;
-            recStatus && recStatus.html(`PNG 25fps… ${pngRec.frames.length}`);
-          }
-          pngRec.pending = false;
-        }, "image/png");
+    // MP4 recording duration check
+    if (mp4Rec.active && mp4Rec.startTime > 0){
+      const elapsed = millis() - mp4Rec.startTime;
+      if (elapsed >= MP4_MAX_DURATION){
+        stopMp4();
+      } else {
+        const secs = Math.floor(elapsed / 1000);
+        recStatus && recStatus.html(` Recording… ${secs}s`);
       }
     }
   }catch(e){
@@ -686,11 +679,11 @@ function buildUI(){
     label("px"), rngLineW
   ]);
 
-  // PNG recorder
-  bRecStart=btn("Start PNG 25fps", startPng);
-  bRecStop=btn("Stop", stopPng); bRecStop.attribute("disabled", true);
+  // MP4 video recorder
+  bRecStart=btn("Start MP4", startMp4);
+  bRecStop=btn("Stop", stopMp4); bRecStop.attribute("disabled", true);
   recStatus=createSpan(" Idle "); recLink=createA("#","");
-  section("PNG sequence (25 fps)", [ bRecStart, bRecStop, recStatus, recLink ]);
+  section("MP4 video recording", [ bRecStart, bRecStop, recStatus, recLink ]);
 
   // Kick detectors according to current mode
   maybeStartCoco();
@@ -779,32 +772,77 @@ function group(children){ const d=createDiv(); d.addClass('g'); children.forEach
 function label(t){ const s=createSpan(t); s.style("margin","0 4px"); return s; }
 function btn(t,fn){ const b=createButton(t); b.mousePressed(fn); return b; }
 
-// ------- PNG -------
-function startPng(){
-  if (pngRec.active) return;
-  pngRec = { active:true, frames:[], nextIdx:0, lastMs:0, intervalMs:40, pending:false };
-  bRecStart.attribute("disabled", true);
-  bRecStop.removeAttribute("disabled");
-  recLink.html(""); recLink.attribute("href","#");
-  recStatus.html(" PNG 25fps…");
-}
-async function stopPng(){
-  if (!pngRec.active) return;
-  pngRec.active = false;
-  bRecStart.removeAttribute("disabled");
-  bRecStop.attribute("disabled", true);
-  if (!pngRec.frames.length){ recStatus.html(" No frames"); return; }
-  recStatus.html(" Zipping…");
+// ------- MP4 Video Recording -------
+function startMp4(){
+  if (mp4Rec.active) return;
   try{
-    const zip = new JSZip();
-    for (const f of pngRec.frames) zip.file(f.name, f.blob);
-    const blob = await zip.generateAsync({ type:"blob" });
-    const url = URL.createObjectURL(blob);
-    recLink.attribute("href", url);
-    recLink.attribute("download", "ascii_png_25fps.zip");
-    recLink.html("Download ZIP");
-    recStatus.html(` Saved ${pngRec.frames.length} frames`);
-  }catch(e){ console.error(e); recStatus.html(" Zip error"); }
+    const canvas = cv.elt;
+    const stream = canvas.captureStream(30); // 30fps capture
+    mp4Rec.stream = stream;
+    
+    // Try MP4 first, fallback to WebM
+    let mimeType = 'video/mp4';
+    if (!MediaRecorder.isTypeSupported(mimeType)){
+      mimeType = 'video/webm;codecs=vp9';
+      if (!MediaRecorder.isTypeSupported(mimeType)){
+        mimeType = 'video/webm';
+      }
+    }
+    
+    const recorder = new MediaRecorder(stream, { mimeType });
+    mp4Rec.recorder = recorder;
+    mp4Rec.chunks = [];
+    
+    recorder.ondataavailable = (e) => {
+      if (e.data && e.data.size > 0) mp4Rec.chunks.push(e.data);
+    };
+    
+    recorder.onstop = async () => {
+      if (mp4Rec.chunks.length === 0){
+        recStatus.html(" No recording");
+        return;
+      }
+      recStatus.html(" Processing…");
+      const blob = new Blob(mp4Rec.chunks, { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      recLink.attribute("href", url);
+      const ext = mimeType.includes('mp4') ? 'mp4' : 'webm';
+      recLink.attribute("download", `ascii_recording.${ext}`);
+      recLink.html(`Download ${ext.toUpperCase()}`);
+      const sizeMB = (blob.size / (1024*1024)).toFixed(1);
+      recStatus.html(` Ready (${sizeMB}MB)`);
+      mp4Rec.chunks = [];
+    };
+    
+    recorder.start(1000); // collect chunks every second
+    mp4Rec.active = true;
+    mp4Rec.startTime = millis();
+    bRecStart.attribute("disabled", true);
+    bRecStop.removeAttribute("disabled");
+    recLink.html(""); recLink.attribute("href","#");
+    recStatus.html(" Recording… 0s");
+  }catch(e){
+    console.error("MP4 start error:", e);
+    recStatus.html(" Error: " + e.message);
+  }
+}
+
+function stopMp4(){
+  if (!mp4Rec.active || !mp4Rec.recorder) return;
+  try{
+    mp4Rec.recorder.stop();
+    if (mp4Rec.stream){
+      mp4Rec.stream.getTracks().forEach(track => track.stop());
+      mp4Rec.stream = null;
+    }
+    mp4Rec.active = false;
+    mp4Rec.startTime = 0;
+    bRecStart.removeAttribute("disabled");
+    bRecStop.attribute("disabled", true);
+  }catch(e){
+    console.error("MP4 stop error:", e);
+    recStatus.html(" Stop error");
+  }
 }
 
 // ------- Palettes / LUT -------
