@@ -38,8 +38,9 @@ let bRecStart, bRecStop, recStatus, recLink;
 let selStyle, inpCustom, chkAutoRows, rngCols, rngFont, rngCellH;
 
 // Luma detection controls
-let chkLumaEnable, chkLumaFeed, chkLumaBoxes;
+let chkLumaEnable, chkLumaFeed, chkLumaBoxes, chkLumaLabels;
 let rngLumaThr, rngLumaGrid, rngLumaMinCells, rngLumaStroke, clrLumaBox;
+let rngLumaLabelSize, clrLumaLabel;
 
 // Detections
 let coco=null, cocoLoopId=null, cocoBusy=false, objects=[];
@@ -388,13 +389,15 @@ function draw(){
       for (const b of lumaBoxesCanvas){
         rect(b.x, b.y, b.w, b.h, 4);
       }
-      if (chkLabels?.checked()){
-        const tc=color(lc);
-        const fs=12;
+      if (chkLumaLabels?.checked()){
+        const tc = color(clrLumaLabel?.value() || lc);
+        const fs = rngLumaLabelSize?.value() || 12;
         noStroke(); fill(red(tc),green(tc),blue(tc));
         textSize(fs); textAlign(LEFT,TOP);
         for (const b of lumaBoxesCanvas){
-          const txt = labelPool[Math.floor(Math.random()*labelPool.length)] || "luma";
+          const labelName = labelPool[Math.floor(Math.random()*labelPool.length)] || "luma";
+          const randomPct = Math.floor(Math.random() * 100);
+          const txt = `${labelName} ${randomPct}%`;
           let tx=b.x+2, ty=b.y - (fs+4);
           if (ty < 2) ty = b.y + 2;
           text(txt, tx, ty);
@@ -534,7 +537,8 @@ function buildUI(){
   // Presets row (added first so user sees it quickly)
   section("Presets", [
     btn("ASCII fast", applyPresetAsciiFast),
-    btn("Pose balanced", applyPresetPoseBalanced)
+    btn("Pose balanced", applyPresetPoseBalanced),
+    btn("Luma boxes", applyPresetLumaBoxes)
   ]);
 
   // Camera
@@ -582,12 +586,16 @@ function buildUI(){
   rngLumaThr=createSlider(0,255,170,1);
   rngLumaGrid=createSlider(10,120,40,1);
   rngLumaMinCells=createSlider(1,20,3,1);
+  chkLumaLabels=createCheckbox("Labels", false);
+  rngLumaLabelSize=createSlider(8,32,12,1);
+  clrLumaLabel=createColorPicker("#00ffd5");
   section("Luma detection", [
     chkLumaEnable, chkLumaFeed, chkLumaBoxes,
     label("Color"), clrLumaBox, label("px"), rngLumaStroke,
     label("Thr"), rngLumaThr,
     label("Grid"), rngLumaGrid,
-    label("Min cells"), rngLumaMinCells
+    label("Min cells"), rngLumaMinCells,
+    chkLumaLabels, label("Size"), rngLumaLabelSize, label("Txt"), clrLumaLabel
   ]);
 
   // Objects
@@ -774,6 +782,30 @@ function applyPresetPoseBalanced(){
   if (chkVideoColors) chkVideoColors.checked(false);
   if (selPalette) selPalette.value("cyberpunk");
 
+  recomputeRowsToMatchAspect();
+  fitCanvasToViewport();
+}
+
+function applyPresetLumaBoxes(){
+  // Luma detection mode with boxes only, no ASCII
+  if (selDet) selDet.value("luma");
+  if (chkLumaEnable) chkLumaEnable.checked(true);
+  if (chkLumaFeed) chkLumaFeed.checked(false);
+  if (chkLumaBoxes) chkLumaBoxes.checked(true);
+  if (chkLumaLabels) chkLumaLabels.checked(true);
+  
+  if (chkVideo) chkVideo.checked(false);
+  if (chkAscii) chkAscii.checked(false);
+  if (chkAsciiOnly) chkAsciiOnly.checked(false);
+  if (chkLines) chkLines.checked(false);
+  
+  // Optimize luma settings
+  if (rngLumaThr) rngLumaThr.value(170);
+  if (rngLumaGrid) rngLumaGrid.value(40);
+  if (rngLumaMinCells) rngLumaMinCells.value(3);
+  if (rngLumaStroke) rngLumaStroke.value(2);
+  if (rngLumaLabelSize) rngLumaLabelSize.value(14);
+  
   recomputeRowsToMatchAspect();
   fitCanvasToViewport();
 }
