@@ -454,33 +454,51 @@ function draw(){
       const curv = chkLineStraight?.checked()
         ? 0
         : (Number.isFinite(sliderCurv) ? sliderCurv : 0.6);
-      const maxPairs = Math.max(1, Math.round(rngLinePairs?.value() || 9999));
-      const shuffled = [...boxes];
-      for (let i=shuffled.length-1; i>0; i--){
-        const j = Math.floor(Math.random()*(i+1));
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-      }
       stroke(red(lc),green(lc),blue(lc)); strokeWeight(lw); noFill();
-      let drawn = 0;
-      for (let i=0;i<shuffled.length;i++){
-        if (drawn >= maxPairs) break;
-        for (let j=i+1;j<shuffled.length;j++){
-          if (drawn >= maxPairs) break;
-          const a=center(shuffled[i]), b=center(shuffled[j]);
+      
+      // Stable connections: each box connects to up to 3 nearest neighbors
+      const MAX_CONNECTIONS_PER_BOX = 3;
+      
+      for (let i=0; i<boxes.length; i++){
+        const boxA = boxes[i];
+        const centerA = center(boxA);
+        
+        // Find distances to all other boxes
+        const distances = [];
+        for (let j=0; j<boxes.length; j++){
+          if (i === j) continue;
+          const boxB = boxes[j];
+          const centerB = center(boxB);
+          const dist = Math.hypot(centerB.x - centerA.x, centerB.y - centerA.y);
+          distances.push({ index: j, dist: dist, box: boxB, center: centerB });
+        }
+        
+        // Sort by distance (stable sort - closest first)
+        distances.sort((a, b) => a.dist - b.dist);
+        
+        // Connect to up to MAX_CONNECTIONS_PER_BOX nearest boxes
+        const connections = Math.min(MAX_CONNECTIONS_PER_BOX, distances.length);
+        for (let k=0; k<connections; k++){
+          const target = distances[k];
+          const a = centerA;
+          const b = target.center;
+          
           if (Math.abs(curv) < 1e-6){
-            line(a.x,a.y,b.x,b.y);
-          }else{
-            const mx=(a.x+b.x)/2, my=(a.y+b.y)/2;
-            const dx=b.x-a.x, dy=b.y-a.y;
-            const len=Math.hypot(dx,dy)||1;
-            const nx=-dy/len, ny=dx/len;
+            line(a.x, a.y, b.x, b.y);
+          } else {
+            const mx = (a.x + b.x) / 2;
+            const my = (a.y + b.y) / 2;
+            const dx = b.x - a.x;
+            const dy = b.y - a.y;
+            const len = Math.hypot(dx, dy) || 1;
+            const nx = -dy / len;
+            const ny = dx / len;
             const off = curv * len * 0.3;
             drawingContext.beginPath();
-            drawingContext.moveTo(a.x,a.y);
-            drawingContext.quadraticCurveTo(mx+nx*off,my+ny*off,b.x,b.y);
+            drawingContext.moveTo(a.x, a.y);
+            drawingContext.quadraticCurveTo(mx + nx * off, my + ny * off, b.x, b.y);
             drawingContext.stroke();
           }
-          drawn++;
         }
       }
     }
