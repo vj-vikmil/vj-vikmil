@@ -29,10 +29,9 @@ jobs:
       - name: Build
         run: npm run build
       
-      - name: Checkout target repo
+      - name: Checkout gh-pages branch
         uses: actions/checkout@v4
         with:
-          repository: vj-vikmil/vj-vikmil
           ref: gh-pages
           path: target-repo
           token: ${{ secrets.GITHUB_TOKEN }}
