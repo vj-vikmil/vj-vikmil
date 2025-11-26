@@ -67,6 +67,8 @@ This project uses GitHub Actions for automated deployment. When you push to `mai
 
 **Live Site:** [vikmil.com/ascii-detect/](https://vikmil.com/ascii-detect/)
 
+**Source Code:** [GitHub Repository](https://github.com/vj-vikmil/vj-vikmil/tree/ascii-detect-source)
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
