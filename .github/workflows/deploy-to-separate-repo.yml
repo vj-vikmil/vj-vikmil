@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - master
+      - ascii-detect-source
   workflow_dispatch:
 
 jobs:
