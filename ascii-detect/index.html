@@ -1,272 +1,30 @@
-<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <title>ASCII + Objects + Pose (Stable, Responsive, MP4 Recording)</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.3/p5.min.js"></script>
-  <!-- Load ONLY ml5 (it bundles tfjs) to avoid duplicate backend warnings -->
-  <script src="https://unpkg.com/ml5@0.12.2/dist/ml5.min.js"></script>
-  <style>
-    :root{ --ui-bg:#101013; --ui-fg:#e6e6e6; --ui-bd:#2b2f36; --dbg:#9fe }
-    html,body{margin:0;height:100%;background:#000;color:var(--ui-fg);font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif}
-    *{box-sizing:border-box}
-    #app{position:fixed;inset:0;display:flex;flex-direction:row}
-    #stage{position:relative;flex:1;overflow:hidden;background:#000}
-    canvas{display:block;touch-action:none}
-    #dbg{
-      position:absolute;
-      left:8px;
-      top:8px;
-      z-index:5;
-      background:rgba(0,0,0,.55);
-      padding:6px 8px;
-      border-radius:6px;
-      font:12px/1.2 monospace;
-      color:var(--dbg);
-      white-space:pre;
-      pointer-events:none;
-      display:none
-    }
-    #statsOverlay{
-      position:absolute;
-      left:8px;
-      top:8px;
-      z-index:4;
-      display:flex;
-      flex-direction:column;
-      gap:4px;
-      background:rgba(0,0,0,0.55);
-      border-radius:8px;
-      padding:8px 10px;
-      font:12px/1.4 monospace;
-      color:#b7ffdd;
-      pointer-events:none;
-    }
-    .stat-line{
-      display:flex;
-      align-items:center;
-      gap:6px;
-    }
-    .stat-value{
-      font-size:14px;
-      font-weight:600;
-      color:#fff;
-    }
-    .pulse-dot{
-      width:7px;
-      height:7px;
-      border-radius:50%;
-      background:#27ff74;
-      animation:pulse 2s ease-in-out infinite;
-      box-shadow:0 0 6px rgba(39,255,116,0.8);
-    }
-    @keyframes pulse{
-      0%{opacity:0.25;transform:scale(0.9);}
-      50%{opacity:1;transform:scale(1.3);}
-      100%{opacity:0.25;transform:scale(0.9);}
-    }
-
-    /* Right panel (desktop) */
-    #ui{
-      width:340px;height:100%;
-      background:var(--ui-bg);border-left:1px solid var(--ui-bd);
-      overflow:auto;padding:10px;display:flex;flex-direction:column;gap:10px
-    }
-    .h{font-weight:600;font-size:13px;opacity:.9;margin-bottom:4px}
-    .row{border:1px solid var(--ui-bd);border-radius:10px;padding:8px}
-    .g{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-    label{font-size:12px;opacity:.85}
-    select,input[type="range"],input[type="color"],button,input[type="text"]{height:28px}
-    select,input[type="color"],input[type="text"]{
-      background:#0e0e12;color:var(--ui-fg);border:1px solid var(--ui-bd);border-radius:6px;padding:0 6px
-    }
-    input[type="text"]{width:220px}
-    input[type="range"]{width:150px}
-    button{background:#17171c;color:var(--ui-fg);border:1px solid var(--ui-bd);border-radius:8px;padding:0 10px;cursor:pointer}
-    button:disabled{opacity:.5;cursor:not-allowed}
-    .hide{display:none}
-    .support-text{font-size:12px;opacity:.85;line-height:1.4;margin:4px 0 6px}
-    .support-btn{
-      display:inline-flex;align-items:center;gap:6px;
-      background:#ffdd00;color:#222;text-decoration:none;
-      border-radius:999px;padding:6px 12px;font-weight:600;
-      border:none;cursor:pointer;font-size:12px
-    }
-    .support-btn span.icon{font-size:14px}
-    .ig-icon{font-size:14px}
-    .bmc-overlay{
-      position:absolute;right:12px;bottom:12px;z-index:6;
-      background:rgba(0,0,0,.6);border-radius:999px;
-      padding:6px 10px;display:flex;align-items:center;gap:6px;
-      font-size:12px;color:#fff;backdrop-filter:blur(4px)
-    }
-    .bmc-overlay a{
-      text-decoration:none;border-radius:999px;padding:4px 10px;font-weight:600;
-      display:inline-flex;align-items:center;gap:4px;font-size:12px
-    }
-    .bmc-overlay .bmc-link{
-      background:#ffdd00;color:#222;
-    }
-    .bmc-overlay .ig-link{
-      background:transparent;color:#ffdd00;border:1px solid #ffdd00;
-    }
-    .bmc-overlay a span.icon{font-size:14px}
-    .stat-block{
-      display:flex;
-      flex-direction:column;
-      min-width:120px;
-      padding:8px 10px;
-      border:1px solid var(--ui-bd);
-      border-radius:8px;
-      background:#15151b;
-    }
-    .stat-label{
-      font-size:11px;
-      opacity:.7;
-      text-transform:uppercase;
-      letter-spacing:0.05em;
-    }
-    .stat-value{
-      font-size:20px;
-      font-weight:600;
-      margin-top:4px;
-    }
-
-    /* Mobile: overlay panel + gear toggle. Stage stays big. */
-    #toggle{
-      position:absolute;right:12px;top:12px;z-index:6;
-      background:rgba(0,0,0,.7);color:#fff;border:1px solid #333;border-radius:10px;padding:8px 10px
-    }
-    @media (min-width:761px){ #toggle{display:none} }
-
-    @media (max-width:760px){
-      #ui{
-        position:fixed;right:0;top:0;height:100%;width:80vw;
-        transform:translateX(100%);transition:transform .2s ease;
-        max-width:80vw
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>TekDetek Video Tool</title>
+    
+    <!-- Global Libraries (kept as globals to match existing logic) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.3/p5.min.js"></script>
+    <script src="https://unpkg.com/ml5@0.12.2/dist/ml5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      body {
+        background-color: #e5e7eb;
+        color: #111827;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        overflow: hidden;
       }
-      #ui.open{ transform:translateX(0) }
-      input[type="range"]{width:120px}
-      input[type="text"]{width:180px}
-      label{font-size:11px}
-    }
-  </style>
+    </style>
+    <link rel="stylesheet" href="/index.css">
 </head>
-<body>
-  <div id="app">
-    <div id="stage">
-      <button id="toggle" aria-label="Toggle controls">⚙</button>
-      <div id="statsOverlay">
-        <div class="stat-line">
-          <span>Total visitors:</span>
-          <span class="stat-value" id="visit-count">—</span>
-        </div>
-        <div class="stat-line">
-          <span class="pulse-dot"></span>
-          <span>Online now:</span>
-          <span class="stat-value" id="online-count">0</span>
-        </div>
-      </div>
-      <div id="dbg"></div>
-      <div class="bmc-overlay">
-        <span>Enjoy this? </span>
-        <a class="bmc-link" href="https://buymeacoffee.com/vikmil" target="_blank" rel="noopener noreferrer">
-          <span class="icon">☕</span>
-          <span>Buy me a coffee</span>
-        </a>
-        <a class="ig-link" href="https://instagram.com/iamviktor" target="_blank" rel="noopener noreferrer">
-          <span class="ig-icon">📸</span>
-          <span>follow my insta @iamviktor</span>
-        </a>
-      </div>
-    </div>
-    <div id="ui">
-      <!-- Support / Buy Me a Coffee -->
-      <div class="row">
-        <div class="h">Support this project</div>
-        <div class="g">
-          <div class="support-text">
-            I’m sharing this tool for free for the love of the game.&nbsp;
-            If you enjoy it and want to see it developed further, any donation is genuinely appreciated.
-            Also, follow my insta <span class="ig-icon">📸</span> <a href="https://instagram.com/iamviktor" target="_blank" rel="noopener noreferrer">@iamviktor</a>.
-          </div>
-          <a class="support-btn" href="https://buymeacoffee.com/vikmil" target="_blank" rel="noopener noreferrer">
-            <span class="icon">☕</span>
-            <span>Buy me a coffee</span>
-          </a>
-          <a class="support-btn ig-link" href="https://instagram.com/iamviktor" target="_blank" rel="noopener noreferrer">
-            <span class="ig-icon">📸</span>
-            <span>follow my insta @iamviktor</span>
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- bump version to bust browser cache so new UI (Res, Presets, Luma panel) shows up -->
-  <script src="sketch.js?v=stable-headcircle-4"></script>
-  <script>
-    document.getElementById('toggle').onclick=()=>document.getElementById('ui').classList.toggle('open');
-    window.addEventListener("error", e=>{
-      const d=document.getElementById("dbg");
-      if(d) d.textContent="error: "+(e.message||"");
-    });
-  </script>
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
-    import { getDatabase, ref, set, onValue, onDisconnect, remove, runTransaction } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js";
-
-    const visitEl = document.getElementById("visit-count");
-    const onlineEl = document.getElementById("online-count");
-
-    if (visitEl || onlineEl){
-      const firebaseConfig = {
-        apiKey: "AIzaSyDZMCYEs9EGTjHKCFKkFAx-qB5dDzmxHMM",
-        authDomain: "online-now-f1628.firebaseapp.com",
-        databaseURL: "https://online-now-f1628-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId: "online-now-f1628",
-        storageBucket: "online-now-f1628.firebasestorage.app",
-        messagingSenderId: "876159780240",
-        appId: "1:876159780240:web:3969ef80b224b54ff69f15",
-        measurementId: "G-VXJMJP1Z87"
-      };
-
-      const app = initializeApp(firebaseConfig);
-      const db = getDatabase(app);
-
-      if (visitEl){
-        const visitsRef = ref(db, "visits");
-        runTransaction(visitsRef, current => (current || 0) + 1);
-        onValue(visitsRef, snap=>{
-          visitEl.textContent = ((snap.val() || 0)).toLocaleString();
-        });
-      }
-
-      if (onlineEl){
-        const sessionId = (crypto.randomUUID && crypto.randomUUID()) || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-        const presenceRef = ref(db, `presence/${sessionId}`);
-        const heartbeat = () => set(presenceRef, Date.now());
-        heartbeat();
-        onDisconnect(presenceRef).remove();
-        setInterval(heartbeat, 25000);
-
-        const onlineRef = ref(db, "presence");
-        const STALE_AFTER = 60000;
-        onValue(onlineRef, snap=>{
-          const val = snap.val() || {};
-          const now = Date.now();
-          let count = 0;
-          for (const [key, ts] of Object.entries(val)){
-            if (typeof ts === "number" && now - ts <= STALE_AFTER){
-              count++;
-            } else {
-              remove(ref(db, `presence/${key}`));
-            }
-          }
-          onlineEl.textContent = count.toString();
-        });
-      }
-    }
-  </script>
-</body>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
 </html>
