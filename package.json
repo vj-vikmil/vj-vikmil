@@ -1,0 +1,31 @@
+{
+  "name": "tekdetek-video-tool",
+  "version": "2.0.0",
+  "license": "MIT",
+  "author": "Viktors Mileika",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "deploy": "npm run build && node scripts/deploy.js",
+    "deploy:manual": "npm run build && powershell -Command \"$target = 'C:\\Users\\user\\Documents\\GitHub\\vikmil.github.io\\vj-vikmil\\ascii-detect'; if (Test-Path $target) { Remove-Item $target -Recurse -Force }; New-Item -ItemType Directory -Path $target -Force | Out-Null; Copy-Item -Path 'dist\\*' -Destination $target -Recurse -Force\""
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "jszip": "^3.10.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.43",
+    "@types/react-dom": "^18.2.17",
+    "@types/node": "^20.10.0",
+    "@types/p5": "^1.7.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.10",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.32",
+    "tailwindcss": "^3.4.0"
+  }
+}
