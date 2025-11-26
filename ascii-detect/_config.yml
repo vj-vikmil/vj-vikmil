@@ -1,0 +1,6 @@
+# Disable Jekyll processing
+safe: true
+lsi: false
+excerpt_separator: "\n\n"
+incremental: false
+

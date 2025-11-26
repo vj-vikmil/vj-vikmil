@@ -1,8 +1,0 @@
-{
-  "name": "TekDetek Video Tool",
-  "description": "A node-based retro-cyberpunk ASCII video processor with AI detection features.",
-  "requestFramePermissions": [
-    "camera",
-    "microphone"
-  ]
-}
